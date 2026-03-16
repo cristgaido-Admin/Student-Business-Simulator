@@ -1,167 +1,398 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("sim-form");
-    const errorBox = document.getElementById("error-message");
+    // DOM elements for Screens
+    const loginScreen = document.getElementById("login-screen");
+    const adminScreen = document.getElementById("admin-screen");
+    const studentScreen = document.getElementById("student-screen");
+
+    // Login Form Elements
+    const loginUsernameInput = document.getElementById("login-username");
+    const loginPasswordInput = document.getElementById("login-password");
+    const loginForm = document.getElementById("login-form");
+    const loginError = document.getElementById("login-error");
+    const btnLogoutStudent = document.getElementById("btn-logout-student");
+    const btnLogoutAdmin = document.getElementById("btn-logout-admin");
+
+    // Role Selection Elements
+    const btnRoleStudent = document.getElementById("btn-role-student");
+    const btnRoleAdmin = document.getElementById("btn-role-admin");
+    const loginHint = document.getElementById("login-hint");
+    let currentLoginRole = 'student';
+
+    btnRoleStudent.addEventListener("click", () => {
+        currentLoginRole = 'student';
+        btnRoleStudent.style.background = 'var(--primary)';
+        btnRoleStudent.style.borderColor = 'var(--primary)';
+        btnRoleAdmin.style.background = 'var(--text-muted)';
+        btnRoleAdmin.style.borderColor = 'var(--text-muted)';
+        loginHint.style.display = 'block';
+        loginUsernameInput.placeholder = "Ingresa tu usuario";
+    });
+
+    btnRoleAdmin.addEventListener("click", () => {
+        currentLoginRole = 'admin';
+        btnRoleAdmin.style.background = 'var(--primary)';
+        btnRoleAdmin.style.borderColor = 'var(--primary)';
+        btnRoleStudent.style.background = 'var(--text-muted)';
+        btnRoleStudent.style.borderColor = 'var(--text-muted)';
+        loginHint.style.display = 'none';
+        loginUsernameInput.placeholder = "Ej: admin";
+    });
+
+    // Admin Elements
+    const adminForm = document.getElementById("admin-form");
+    const btnResetAdmin = document.getElementById("btn-reset-admin");
+    const btnRefreshAdmin = document.getElementById("btn-refresh-admin");
+    const btnResetStudents = document.getElementById("btn-reset-students");
+    const btnResetAllCredentials = document.getElementById("btn-reset-all-credentials");
+
+    // Student globals
+    const mtdInput = document.getElementById("mtd");
+    const costAdjInput = document.getElementById("cost_adj");
+    const marketingAdjInput = document.getElementById("marketing_adj");
+    const taxInput = document.getElementById("tax");
+    const prodCostInput = document.getElementById("prod_cost");
+    const r2ProdCostT1 = document.getElementById("r2_prod_cost_t1");
+    const r2ProdCostT1Tech = document.getElementById("r2_prod_cost_t1_tech");
+    const r2ProdCostT2 = document.getElementById("r2_prod_cost_t2");
+    const tech2CostInput = document.getElementById("tech2_cost");
 
     // View elements
     const resultsData = document.getElementById("results-data");
     const emptyState = document.getElementById("empty-state");
-
-    const resVentas = document.getElementById("res-ventas");
-    const resCostoPropio = document.getElementById("res-costo-propio");
-    const resCostoSub = document.getElementById("res-costo-sub");
-    const resGross = document.getElementById("res-gross");
-    const resFinanceCp = document.getElementById("res-finance-cp");
-    const resAp = document.getElementById("res-ap");
-    const resEbitda = document.getElementById("res-ebitda");
-    const resAmortization = document.getElementById("res-amortization");
-    const resEbit = document.getElementById("res-ebit");
-    const resLongTerm = document.getElementById("res-long-term");
-    const resEbt = document.getElementById("res-ebt");
-    const resTax = document.getElementById("res-tax");
-    const resUtilidad = document.getElementById("res-utilidad");
-    const resRoi = document.getElementById("res-roi");
-
-    // Rows to hide/show dynamically
-    const rowLongTerm = document.getElementById("row-long-term");
-    const rowCostoSub = document.getElementById("row-costo-sub");
-
-    const kpiDemand = document.getElementById("kpi-demand");
-    const kpiSold = document.getElementById("kpi-sold");
-    const kpiStock = document.getElementById("kpi-stock");
-    const kpiEstimationError = document.getElementById("kpi-estimation-error");
-    const insightBox = document.getElementById("insight-box");
-    const prodCostInput = document.getElementById("prod_cost");
+    const form = document.getElementById("sim-form");
+    const errorBox = document.getElementById("error-message");
     const priceInput = document.getElementById("price");
-    const groupCounter = document.getElementById("group-counter");
 
-    // Chart elements and state
+    // Chart elements
     let rankingChartUnits = null;
     let rankingChartProfit = null;
 
-    /**
-     * groupResults: Ronda 1 entries
-     * { name, price, marketingSpend, ia, plantUnits, subUnits,
-     *   prodCost, estimatedSales, employees, salaryPerEmployee,
-     *   trainingBudget, shortTermDebt, longTermDebt,
-     *   maintenanceCostPerUnit, tax, costAdj, marketingAdj, mtd,
-     *   buyTech2, tech2Cost, tech2FinancingGap, hasTech2 }
-     *
-     * groupResults_R2: Ronda 2 entries
-     * { name, price, marketingSpend, ia, estimatedSales, employees,
-     *   salaryPerEmployee, trainingBudget, shortTermDebt, longTermDebt,
-     *   maintenanceCostPerUnit, tax, costAdj, marketingAdj, mtd,
-     *   hasTech2,
-     *   prodCostT1, prodCostT2,
-     *   plantT1, plantT2, subT1, subT2 }
-     */
-    let groupResults = [];
-    let groupResults_R2 = [];
-
-    // Current round state
-    let currentRound = 1;
-
-    // ─── MOTOR DE MERCADO — Parámetros ────────────────────────
-    const WP = 0.6; // Sensibilidad al Precio
-    const WM = 0.4; // Sensibilidad al Marketing
-    const SUB_CAP = 300;    // Máximo subcontratación Ronda 1
-    const SUB_PENALTY = 1.5; // Recargo del 50% sobre CP (Ronda 1)
+    // Consts (Motor de Mercado)
+    const WP = 0.6;
+    const WM = 0.4;
+    const SUB_CAP = 300;
+    const SUB_PENALTY = 1.5;
     const INITIAL_INVESTMENT = 500000;
-    const AMORTIZATION = 25000;  // 5% de 500,000
-    const MAX_GROUPS = 5;
-
+    const AMORTIZATION = 25000;
     const formatCurr = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
-    // ─── SWITCH DE RONDA ───────────────────────────────────────
-    window.switchRound = function (round) {
-        currentRound = round;
+    let currentRound = 1;
+    let currentUserGroup = null;
 
-        document.getElementById("tab-r1").classList.toggle("active", round === 1);
-        document.getElementById("tab-r2").classList.toggle("active", round === 2);
+    // --- LOCAL STORAGE UTILS ---
+    function getAdminConfig() {
+        return JSON.parse(localStorage.getItem('adminConfig')) || {
+            mtd: 5000, cost_adj: 0, marketing_adj: 0, tax: 30,
+            prod_cost: 50, prod_cost_t2: 60, tech2_cost: 30000,
+            admin_user: 'admin', admin_pass: 'admin123'
+        };
+    }
+    function saveAdminConfig(config) {
+        localStorage.setItem('adminConfig', JSON.stringify(config));
+    }
+    function getStudentUsers() {
+        return JSON.parse(localStorage.getItem('studentUsers')) || {};
+    }
+    function saveStudentUsers(users) {
+        localStorage.setItem('studentUsers', JSON.stringify(users));
+    }
+    function getGroupsData(round) {
+        const key = round === 1 ? 'groupsData' : 'groupsDataR2';
+        return JSON.parse(localStorage.getItem(key)) || [];
+    }
+    function saveGroupsData(data, round) {
+        const key = round === 1 ? 'groupsData' : 'groupsDataR2';
+        localStorage.setItem(key, JSON.stringify(data));
+    }
 
-        document.getElementById("ops-r1").classList.toggle("hidden", round !== 1);
-        document.getElementById("ops-r2").classList.toggle("hidden", round !== 2);
+    // --- LOGIN LOGIC ---
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        loginError.classList.add("hidden");
+        const user = loginUsernameInput.value.trim();
+        const pwd = loginPasswordInput.value;
 
-        document.getElementById("results-round-badge").textContent = `Ronda ${round}`;
-
-        // In round 2: adapt operations section per current group name
-        if (round === 2) {
-            adaptRound2Ops();
+        if (!user || !pwd) {
+            showErrorLogin("Debes ingresar usuario y contraseña.");
+            return;
         }
 
-        // Reset results on round switch
-        resultsData.classList.add("hidden");
-        emptyState.classList.remove("hidden");
+        const adminConf = getAdminConfig();
+        // Allow case insensitive Admin login check if the user is typing "admin"
+        const configuredAdminUser = (adminConf.admin_user || 'admin').trim().toLowerCase();
+        const configuredAdminPass = (adminConf.admin_pass || 'admin123').trim();
+
+        // EMERGENCY RESET
+        if (user.toLowerCase() === 'reset' && pwd === 'cris2026') {
+            localStorage.removeItem('adminConfig');
+            localStorage.removeItem('studentUsers');
+            localStorage.removeItem('groupsData');
+            localStorage.removeItem('groupsDataR2');
+            alert("Sistema reseteado a valores de fábrica. Todo el almacenamiento se borró. La página se recargará.");
+            location.reload();
+            return;
+        }
+
+        if (currentLoginRole === 'admin') {
+            if (user.toLowerCase() === configuredAdminUser && pwd.trim() === configuredAdminPass) {
+                loginUsernameInput.value = "";
+                loginPasswordInput.value = "";
+                showScreen("admin");
+                loadAdminForm();
+                updateChartsGlobal();
+            } else {
+                showErrorLogin(`Credenciales incorrectas. Ingresaste user:"${user}" pass:"${pwd}". El sistema espera user:"${configuredAdminUser}" pass:"${configuredAdminPass}". Revise espacios.`);
+            }
+        } else {
+            if (user.toLowerCase() === configuredAdminUser) {
+                showErrorLogin("Este usuario está reservado para el administrador.");
+                return;
+            }
+            const studentUsers = getStudentUsers();
+
+            if (studentUsers[user]) {
+                if (studentUsers[user].password === pwd) {
+                    loginUsernameInput.value = "";
+                    loginPasswordInput.value = "";
+                    currentUserGroup = user;
+                    const gn = studentUsers[user].groupNumber;
+                    document.getElementById("group_name").value = `Grupo ${gn} - ${currentUserGroup}`;
+                    showScreen("student");
+                    loadStudentView();
+                } else {
+                    showErrorLogin("La contraseña de este grupo es incorrecta.");
+                }
+            } else {
+                if (Object.keys(studentUsers).length >= 5) {
+                    showErrorLogin("Ya están registrados los 5 grupos permitidos para esta simulación.");
+                } else {
+                    const groupNum = Object.keys(studentUsers).length + 1;
+                    studentUsers[user] = { password: pwd, groupNumber: groupNum };
+                    saveStudentUsers(studentUsers);
+                    loginUsernameInput.value = "";
+                    loginPasswordInput.value = "";
+                    currentUserGroup = user;
+                    document.getElementById("group_name").value = `Grupo ${groupNum} - ${currentUserGroup}`;
+                    showScreen("student");
+                    loadStudentView();
+                }
+            }
+        }
+    });
+
+    function showErrorLogin(msg) {
+        loginError.innerText = msg;
+        loginError.classList.remove("hidden");
+    }
+
+    btnLogoutStudent.addEventListener("click", () => { showScreen("login"); });
+    btnLogoutAdmin.addEventListener("click", () => { showScreen("login"); });
+
+    function showScreen(screen) {
+        loginScreen.classList.remove("active");
+        adminScreen.classList.remove("active");
+        studentScreen.classList.remove("active");
+        btnLogoutStudent.classList.add("hidden");
+
+        if (screen === "login") {
+            loginScreen.classList.add("active");
+        } else if (screen === "admin") {
+            adminScreen.classList.add("active");
+        } else if (screen === "student") {
+            studentScreen.classList.add("active");
+            btnLogoutStudent.classList.remove("hidden");
+        }
+    }
+
+    // --- ADMIN LOGIC ---
+    function loadAdminForm() {
+        const conf = getAdminConfig();
+        document.getElementById("admin_user").value = conf.admin_user || 'admin';
+        document.getElementById("admin_pass").value = conf.admin_pass || 'admin123';
+        document.getElementById("admin_mtd").value = conf.mtd;
+        document.getElementById("admin_cost_adj").value = conf.cost_adj;
+        document.getElementById("admin_marketing_adj").value = conf.marketing_adj;
+        document.getElementById("admin_tax").value = conf.tax;
+        document.getElementById("admin_prod_cost").value = conf.prod_cost;
+        document.getElementById("admin_prod_cost_t2").value = conf.prod_cost_t2;
+        document.getElementById("admin_tech2_cost").value = conf.tech2_cost;
+        renderStudentManagement();
+    }
+
+    function renderStudentManagement() {
+        const listDiv = document.getElementById("student-management-list");
+        if (!listDiv) return;
+        const studentUsers = getStudentUsers();
+        let html = "";
+        const keys = Object.keys(studentUsers);
+        if (keys.length === 0) {
+            html = "<p style='color: var(--text-muted); font-size: 0.9rem;'>No hay grupos registrados todavía.</p>";
+        } else {
+            keys.forEach(user => {
+                const gn = studentUsers[user].groupNumber || '?';
+                html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--input-bg); border: 1px solid var(--border); border-radius: 4px;">
+                    <span style="font-weight: 600;">Grupo ${gn}: <span style="color: var(--primary);">${user}</span></span>
+                    <button type="button" class="btn-primary" style="background: var(--danger); border-color: var(--danger); padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="resetStudentCredential('${user}')">🗑️ Resetear Contraseña</button>
+                </div>`;
+            });
+        }
+        listDiv.innerHTML = html;
+    }
+
+    window.resetStudentCredential = function(username) {
+        if (confirm(`⚠️ ¿Estás seguro de que quieres borrar la contraseña del grupo: ${username}?\nEsto les permitirá ingresar una nueva contraseña la próxima vez que inicien sesión con ese nombre.`)) {
+            const studentUsers = getStudentUsers();
+            delete studentUsers[username];
+            saveStudentUsers(studentUsers);
+            renderStudentManagement();
+        }
     };
 
-    // ─── ADAPTAR OPERACIONES R2 POR GRUPO ─────────────────────
-    function adaptRound2Ops() {
-        const groupName = document.getElementById("group_name").value.trim();
-        const r1Group = groupResults.find(g => g.name === groupName);
-        const hasTech2 = r1Group ? r1Group.hasTech2 : false;
+    adminForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveAdminConfig({
+            admin_user: document.getElementById("admin_user").value.trim(),
+            admin_pass: document.getElementById("admin_pass").value,
+            mtd: parseFloat(document.getElementById("admin_mtd").value) || 5000,
+            cost_adj: parseFloat(document.getElementById("admin_cost_adj").value) || 0,
+            marketing_adj: parseFloat(document.getElementById("admin_marketing_adj").value) || 0,
+            tax: parseFloat(document.getElementById("admin_tax").value) || 30,
+            prod_cost: parseFloat(document.getElementById("admin_prod_cost").value) || 50,
+            prod_cost_t2: parseFloat(document.getElementById("admin_prod_cost_t2").value) || 60,
+            tech2_cost: parseFloat(document.getElementById("admin_tech2_cost").value) || 30000
+        });
+        const msg = document.getElementById("admin-msg");
+        msg.innerText = "✅ Configuración guardada correctamente en LocalStorage.";
+        msg.classList.remove("hidden");
+        setTimeout(() => msg.classList.add("hidden"), 3000);
+        updateChartsGlobal(); // MTD might have changed
+    });
 
+    if (btnResetAllCredentials) {
+        btnResetAllCredentials.addEventListener("click", () => {
+            if (confirm("⚠️ ¿Estás seguro de que quieres borrar TODAS las contraseñas de los estudiantes?\nEsto NO borrará sus decisiones, solo les permitirá registrar una nueva contraseña al ingresar.")) {
+                localStorage.removeItem('studentUsers');
+                renderStudentManagement();
+                alert("✅ Contraseñas de estudiantes borradas exitosamente.");
+            }
+        });
+    }
+
+    btnResetStudents.addEventListener("click", () => {
+        if (confirm("⚠️ ¿Estás seguro de que quieres borrar SOLAMENTE a los Estudiantes? Esto borrará sus cuentas y decisiones pero mantendrá la configuración global del simulador.")) {
+            localStorage.removeItem('studentUsers');
+            localStorage.removeItem('groupsData');
+            localStorage.removeItem('groupsDataR2');
+            updateChartsGlobal();
+            alert("✅ Estudiantes reiniciados exitosamente.");
+        }
+    });
+
+    btnResetAdmin.addEventListener("click", () => {
+        if (confirm("⚠️ ¿Estás seguro de que quieres borrar TODOS LOS DATOS (Admin incluido)? Esta acción no se puede deshacer.")) {
+            localStorage.clear();
+            loadAdminForm();
+            updateChartsGlobal();
+            alert("✅ Simulador reiniciado por completo.");
+        }
+    });
+
+    btnRefreshAdmin.addEventListener("click", () => {
+        updateChartsGlobal();
+    });
+
+    // --- STUDENT LOGIC ---
+    function loadStudentView() {
+        const conf = getAdminConfig();
+        mtdInput.value = conf.mtd;
+        costAdjInput.value = conf.cost_adj;
+        marketingAdjInput.value = conf.marketing_adj;
+        taxInput.value = conf.tax;
+        tech2CostInput.value = conf.tech2_cost;
+
+        updateTech2Badge();
+        if (currentRound === 2) adaptRound2Ops();
+
+        tryToShowPreviousResults();
+    }
+
+    window.switchRound = function (round) {
+        currentRound = round;
+        document.getElementById("tab-r1").classList.toggle("active", round === 1);
+        document.getElementById("tab-r2").classList.toggle("active", round === 2);
+        document.getElementById("ops-r1").classList.toggle("hidden", round !== 1);
+        document.getElementById("ops-r2").classList.toggle("hidden", round !== 2);
+        document.getElementById("results-round-badge").textContent = `Ronda ${round}`;
+
+        if (round === 2) adaptRound2Ops();
+
+        // Hide results until form is submitted for this round, or try to load existing
+        errorBox.classList.add("hidden");
+        tryToShowPreviousResults();
+    };
+
+    function adaptRound2Ops() {
+        const r1Group = getGroupsData(1).find(g => g.name === currentUserGroup);
+        const hasTech2 = r1Group ? r1Group.hasTech2 : false;
         document.getElementById("ops-r2-no-tech2").classList.toggle("hidden", hasTech2);
         document.getElementById("ops-r2-with-tech2").classList.toggle("hidden", !hasTech2);
     }
 
-    // ─── AUTO ADAPT WHEN GROUP NAME CHANGES ───────────────────
-    document.getElementById("group_name").addEventListener("input", () => {
-        if (currentRound === 2) adaptRound2Ops();
-        updateGroupCounter();
-    });
-
-    // ─── ACTUALIZAR CONTADOR ───────────────────────────────────
-    function updateGroupCounter() {
-        const total = groupResults.length;
-        groupCounter.textContent = `${total} / ${MAX_GROUPS} grupos`;
-        groupCounter.classList.toggle("counter-full", total >= MAX_GROUPS);
-    }
-    updateGroupCounter();
-
-    // ─── TECH2 COST BADGE SYNC ────────────────────────────────
-    const tech2CostInput = document.getElementById("tech2_cost");
-    const tech2CostBadge = document.getElementById("tech2-cost-badge");
-
     function updateTech2Badge() {
-        const val = parseFloat(tech2CostInput.value);
-        if (!isNaN(val) && val > 0) {
-            tech2CostBadge.textContent = formatCurr(val);
-        } else {
-            tech2CostBadge.textContent = "$0.00";
-        }
+        const conf = getAdminConfig();
+        const tech2CostBadge = document.getElementById("tech2-cost-badge");
+        tech2CostBadge.textContent = formatCurr(conf.tech2_cost);
     }
-    tech2CostInput.addEventListener("input", updateTech2Badge);
-    updateTech2Badge();
 
-    // Show/hide short-term hint when tech2 is toggled
+    // Toggle short term debt tech2 hint
     const buyTech2Checkbox = document.getElementById("buy_tech2");
     buyTech2Checkbox.addEventListener("change", () => {
         const hint = document.getElementById("short-term-tech2-hint");
         hint.style.display = buyTech2Checkbox.checked ? "block" : "none";
     });
 
-    // ─── SUGERENCIA DE PRECIO ─────────────────────────────────
     const priceHint = document.createElement('small');
     priceHint.className = 'hint suggestion-hint';
     priceHint.style.color = '#0f172a';
     priceInput.parentNode.insertBefore(priceHint, priceInput.nextSibling);
 
-    prodCostInput.addEventListener('input', () => {
-        const cost = parseFloat(prodCostInput.value);
+    priceInput.addEventListener('focus', () => {
+        const conf = getAdminConfig();
+        const cost = conf.prod_cost;
         if (cost > 0) {
             const minSugg = (cost * 1.5).toFixed(2);
             const maxSugg = (cost * 2.5).toFixed(2);
             priceHint.innerText = `💡 Sugerencia competitiva: $${minSugg} - $${maxSugg}`;
-        } else {
-            priceHint.innerText = '';
         }
     });
 
-    // ─── FÓRMULA DE ATRACTIVIDAD ──────────────────────────────
+    // Subcontratación Limit Enforcement
+    const subUnitsInput = document.getElementById("sub_units");
+    subUnitsInput.addEventListener("input", (e) => {
+        if (parseInt(e.target.value) > 300) {
+            e.target.value = 300;
+        }
+    });
+
+    // Form Submission
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        errorBox.classList.add("hidden");
+        errorBox.innerText = "";
+
+        if (currentRound === 1) {
+            processRound1();
+        } else {
+            processRound2();
+        }
+    });
+
+    // --- FORMULAS ---
     function calcIA(price, marketingSpend) {
         return (WM * marketingSpend) + (WP * (1 / price * 1000));
     }
 
-    // ─── RECALCULAR DR PARA TODOS LOS EQUIPOS ─────────────────
     function calcAllDemands(sourceResults, mtd) {
         const totalIA = sourceResults.reduce((sum, g) => sum + g.ia, 0);
         if (totalIA === 0) return sourceResults.map(g => ({ name: g.name, dr: 0 }));
@@ -171,7 +402,153 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
     }
 
-    // ─── CALCULAR FINANCIEROS RONDA 1 ─────────────────────────
+    // --- ROUND 1 PROCESS ---
+    function processRound1() {
+        const conf = getAdminConfig();
+        const mtd = conf.mtd;
+
+        const price = parseFloat(document.getElementById("price").value);
+        const estimatedSales = parseInt(document.getElementById("estimated_sales").value);
+        const marketingSpend = parseFloat(document.getElementById("marketing_spend").value);
+        const plantUnits = parseInt(document.getElementById("plant_units").value);
+        const subUnits = parseInt(document.getElementById("sub_units").value);
+        const inputProdCost = parseFloat(document.getElementById("prod_cost").value);
+
+        const employees = parseInt(document.getElementById("employees").value);
+        const salaryPerEmployee = parseFloat(document.getElementById("salary_per_employee").value);
+        const trainingBudget = parseFloat(document.getElementById("training_budget").value);
+        const shortTermDebt = parseFloat(document.getElementById("short_term_debt").value);
+        const longTermDebt = parseFloat(document.getElementById("long_term_debt").value);
+        const maintenanceCostPerUnit = parseFloat(document.getElementById("maintenance_cost").value);
+
+        const buyTech2 = document.getElementById("buy_tech2").checked;
+
+        if (plantUnits > 2000) { showError("❌ La capacidad máxima de la planta es 2000 unidades."); return; }
+        if (subUnits > 300) { showError("❌ El máximo a subcontratar son 300 unidades."); return; }
+        if (price <= 0) { showError("❌ El precio de venta no puede ser cero o negativo."); return; }
+
+        const ia = calcIA(price, marketingSpend);
+
+        const groupData = {
+            name: currentUserGroup, price, marketingSpend, ia,
+            plantUnits, subUnits, prodCost: inputProdCost, estimatedSales,
+            employees, salaryPerEmployee, trainingBudget,
+            shortTermDebt, baseShortTermDebt: shortTermDebt, longTermDebt, maintenanceCostPerUnit,
+            tax: conf.tax, costAdj: conf.cost_adj, marketingAdj: conf.marketing_adj, mtd,
+            buyTech2, tech2Cost: conf.tech2_cost, tech2FinancingGap: 0, hasTech2: false
+        };
+
+        const groupsData = getGroupsData(1);
+        const existingIdx = groupsData.findIndex(g => g.name === currentUserGroup);
+
+        // Temp eval for Tech2
+        const tempResults = [...groupsData];
+        if (existingIdx !== -1) tempResults[existingIdx] = groupData;
+        else tempResults.push(groupData);
+
+        const tempDemands = calcAllDemands(tempResults, mtd);
+        const tempDR = tempDemands.find(d => d.name === currentUserGroup).dr;
+        const tempF = calcGroupFinancials(groupData, tempDR);
+
+        if (buyTech2) {
+            if (tempF.netProfit <= 0) {
+                showError(`❌ No puedes comprar la Tecnología 2. Tu Utilidad Neta proyectada es ${formatCurr(tempF.netProfit)}, necesitas que sea positiva.`);
+                return;
+            }
+            groupData.tech2FinancingGap = Math.max(0, conf.tech2_cost - tempF.netProfit);
+            groupData.hasTech2 = true;
+            groupData.shortTermDebt += groupData.tech2FinancingGap;
+        }
+
+        if (existingIdx !== -1) groupsData[existingIdx] = groupData;
+        else groupsData.push(groupData);
+
+        saveGroupsData(groupsData, 1);
+        tryToShowPreviousResults();
+        alert("💾 Decisión de la Ronda 1 guardada con éxito.");
+    }
+
+    // --- ROUND 2 PROCESS ---
+    function processRound2() {
+        const conf = getAdminConfig();
+        const mtd = conf.mtd;
+
+        const r1Data = getGroupsData(1).find(g => g.name === currentUserGroup);
+        if (!r1Data) {
+            showError("❌ Debes completar y guardar la Ronda 1 primero.");
+            return;
+        }
+
+        const price = parseFloat(document.getElementById("price").value);
+        const estimatedSales = parseInt(document.getElementById("estimated_sales").value);
+        const marketingSpend = parseFloat(document.getElementById("marketing_spend").value);
+
+        const employees = parseInt(document.getElementById("employees").value);
+        const salaryPerEmployee = parseFloat(document.getElementById("salary_per_employee").value);
+        const trainingBudget = parseFloat(document.getElementById("training_budget").value);
+        const shortTermDebt = parseFloat(document.getElementById("short_term_debt").value);
+        const longTermDebt = parseFloat(document.getElementById("long_term_debt").value);
+        const maintenanceCostPerUnit = parseFloat(document.getElementById("maintenance_cost").value);
+
+        let inputProdCostT1, inputProdCostT2 = 0;
+        if (r1Data.hasTech2) {
+            inputProdCostT1 = parseFloat(document.getElementById("r2_prod_cost_t1_tech").value);
+            inputProdCostT2 = parseFloat(document.getElementById("r2_prod_cost_t2").value);
+        } else {
+            inputProdCostT1 = parseFloat(document.getElementById("r2_prod_cost_t1").value);
+        }
+
+        if (price <= 0) { showError("❌ El precio de venta no puede ser cero o negativo."); return; }
+
+        const ia = calcIA(price, marketingSpend);
+        const groupData = {
+            name: currentUserGroup, price, marketingSpend, ia, estimatedSales,
+            employees, salaryPerEmployee, trainingBudget,
+            shortTermDebt, longTermDebt, maintenanceCostPerUnit,
+            tax: conf.tax, costAdj: conf.cost_adj, marketingAdj: conf.marketing_adj, mtd,
+            hasTech2: r1Data.hasTech2,
+            prodCostT1: inputProdCostT1, prodCostT2: inputProdCostT2
+        };
+
+        const groupsDataR2 = getGroupsData(2);
+        const existingIdx = groupsDataR2.findIndex(g => g.name === currentUserGroup);
+
+        if (existingIdx !== -1) groupsDataR2[existingIdx] = groupData;
+        else groupsDataR2.push(groupData);
+
+        saveGroupsData(groupsDataR2, 2);
+        tryToShowPreviousResults();
+        alert("💾 Decisión de la Ronda 2 guardada con éxito.");
+    }
+
+    function tryToShowPreviousResults() {
+        if (!currentUserGroup) return;
+        const groupsData = getGroupsData(currentRound);
+        const myData = groupsData.find(g => g.name === currentUserGroup);
+
+        if (myData) {
+            const conf = getAdminConfig();
+            const allDemands = calcAllDemands(groupsData, conf.mtd);
+            const myDR = allDemands.find(d => d.name === currentUserGroup).dr;
+
+            let f;
+            if (currentRound === 1) {
+                f = calcGroupFinancials(myData, myDR);
+                updateResultsUI_R1(f, myData, myDR, myData.tech2FinancingGap, myData.hasTech2, myData.tech2Cost);
+            } else {
+                f = calcGroupFinancials_R2(myData, myDR);
+                updateResultsUI_R2(f, myData, myDR);
+            }
+            updateInsights(f, myData, myDR, groupsData.length, conf.mtd);
+            emptyState.classList.add("hidden");
+            resultsData.classList.remove("hidden");
+        } else {
+            resultsData.classList.add("hidden");
+            emptyState.classList.remove("hidden");
+        }
+    }
+
+    // --- FINANCIAL CALCULATIONS ---
     function calcGroupFinancials(group, dr) {
         const {
             price, plantUnits, subUnits, prodCost,
@@ -189,10 +566,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const ptd = plantUnits + effectiveSubUnits;
 
-        let soldUnits = Math.min(dr, ptd);
         let projectedSoldUnits = Math.floor(dr + (dr * (marketingAdj / 100)));
-        soldUnits = Math.min(projectedSoldUnits, ptd);
-
+        const soldUnits = Math.min(projectedSoldUnits, ptd);
         const unsoldUnits = ptd - soldUnits;
         const estimationError = estimatedSales - dr;
 
@@ -224,7 +599,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // ─── CALCULAR FINANCIEROS RONDA 2 ─────────────────────────
     function calcGroupFinancials_R2(group, dr) {
         const {
             price, estimatedSales, employees, salaryPerEmployee,
@@ -235,40 +609,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const trainingDiscountPercent = Math.floor(trainingBudget / 10000) * 0.01;
 
-        // Plant & Sub quantities (fixed per tech2 status)
         let plantT1, plantT2, subT1, subT2;
         let subCostT1, subCostT2;
-        let subAlertFired = false;
 
         if (hasTech2) {
-            plantT1 = 1500;
-            plantT2 = 1000;
-            subT1 = 500;
-            subT2 = 300;
+            plantT1 = 1500; plantT2 = 1000;
+            subT1 = 500; subT2 = 300;
             subCostT1 = prodCostT1 * 1.15;
             subCostT2 = prodCostT2 * 1.20;
         } else {
-            plantT1 = 3000;
-            plantT2 = 0;
-            subT1 = 500;
-            subT2 = 0;
+            plantT1 = 3000; plantT2 = 0;
+            subT1 = 500; subT2 = 0;
             subCostT1 = prodCostT1 * 1.05;
             subCostT2 = 0;
         }
 
-        // Apply training discount to unit costs
         const realProdCostT1 = prodCostT1 * (1 - trainingDiscountPercent) * (1 + (costAdj / 100));
         const realProdCostT2 = hasTech2 ? prodCostT2 * (1 - trainingDiscountPercent) * (1 + (costAdj / 100)) : 0;
 
         const ptd = plantT1 + subT1 + plantT2 + subT2;
-
         let projectedSoldUnits = Math.floor(dr + (dr * (marketingAdj / 100)));
         const soldUnits = Math.min(projectedSoldUnits, ptd);
         const unsoldUnits = ptd - soldUnits;
         const estimationError = estimatedSales - dr;
 
         const totalSales = soldUnits * price;
-
         const totalPropio = (plantT1 * realProdCostT1) + (plantT2 * realProdCostT2);
         const totalSub = (subT1 * subCostT1) + (subT2 * subCostT2);
         const totalSalaries = employees * salaryPerEmployee;
@@ -276,9 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const grossProfit = totalSales - cogs;
 
         const maintenanceCost = unsoldUnits * maintenanceCostPerUnit;
-        const gastosFinancieros = shortTermDebt;
-        const gastosAP = marketingSpend;
-        const ebitda = grossProfit - maintenanceCost - gastosFinancieros - gastosAP;
+        const ebitda = grossProfit - maintenanceCost - shortTermDebt - marketingSpend;
 
         const ebit = ebitda - AMORTIZATION;
         const ebt = ebit - longTermDebt;
@@ -289,402 +652,177 @@ document.addEventListener("DOMContentLoaded", () => {
         return {
             soldUnits, unsoldUnits, estimationError, totalSales,
             totalPropio, totalSub, totalSalaries, trainingBudget,
-            cogs, grossProfit, maintenanceCost, gastosFinancieros,
-            gastosAP, ebitda, ebit, ebt, taxAmount, netProfit, roi,
-            subAlertFired, ptd, dr, projectedSoldUnits,
-            plantT1, plantT2, subT1, subT2
+            cogs, grossProfit, maintenanceCost, gastosFinancieros: shortTermDebt,
+            gastosAP: marketingSpend, ebitda, ebit, ebt, taxAmount, netProfit, roi,
+            subAlertFired: false, ptd, dr, projectedSoldUnits
         };
     }
 
-    // ─── SUBMIT HANDLER ───────────────────────────────────────
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        errorBox.classList.add("hidden");
-        errorBox.innerText = "";
-
-        const groupNameInput = document.getElementById("group_name");
-        if (!groupNameInput) {
-            showError("❌ Error de sistema: No se encontró el campo 'Nombre del Grupo'.");
-            return;
-        }
-        const groupName = groupNameInput.value.trim();
-        if (!groupName) {
-            showError("❌ Error lógico: Debes ingresar el nombre del grupo.");
-            return;
-        }
-
-        if (currentRound === 1) {
-            processRound1(groupName);
-        } else {
-            processRound2(groupName);
-        }
-    });
-
-    // ─── PROCESAR RONDA 1 ─────────────────────────────────────
-    function processRound1(groupName) {
-        // Check if new group exceeds cap
-        const existingIndex = groupResults.findIndex(g => g.name === groupName);
-        if (existingIndex === -1 && groupResults.length >= MAX_GROUPS) {
-            showError(`❌ Límite alcanzado: El simulador soporta un máximo de ${MAX_GROUPS} grupos. No se pueden añadir más equipos.`);
-            return;
-        }
-
-        // Collect Inputs
-        const mtd = parseInt(document.getElementById("mtd").value);
-        const costAdj = parseFloat(document.getElementById("cost_adj").value);
-        const marketingAdj = parseFloat(document.getElementById("marketing_adj").value);
-        const tax = parseFloat(document.getElementById("tax").value);
-
-        const prodCost = parseFloat(document.getElementById("prod_cost").value);
-        const plantUnits = parseInt(document.getElementById("plant_units").value);
-        const subUnitsRaw = parseInt(document.getElementById("sub_units").value);
-
-        const price = parseFloat(document.getElementById("price").value);
-        const estimatedSales = parseInt(document.getElementById("estimated_sales").value);
-        const marketingSpend = parseFloat(document.getElementById("marketing_spend").value);
-
-        const employees = parseInt(document.getElementById("employees").value);
-        const salaryPerEmployee = parseFloat(document.getElementById("salary_per_employee").value);
-        const trainingBudget = parseFloat(document.getElementById("training_budget").value);
-
-        const shortTermDebt = parseFloat(document.getElementById("short_term_debt").value);
-        const longTermDebt = parseFloat(document.getElementById("long_term_debt").value);
-        const maintenanceCostPerUnit = parseFloat(document.getElementById("maintenance_cost").value);
-
-        const buyTech2 = document.getElementById("buy_tech2").checked;
-        const tech2Cost = parseFloat(document.getElementById("tech2_cost").value) || 0;
-
-        // Validations
-        if (isNaN(mtd) || mtd <= 0) {
-            showError("❌ Error lógico: El Mercado Total Disponible (MTD) debe ser mayor a 0."); return;
-        }
-        if (plantUnits > 2000) {
-            showError("❌ Límite excedido: La planta solo tiene capacidad productiva máxima de 2,000 unidades."); return;
-        }
-        if (price <= 0 || prodCost <= 0) {
-            showError("❌ Error lógico: El precio y el costo unitario deben ser mayores a $0."); return;
-        }
-        if (isNaN(costAdj) || isNaN(marketingAdj) || isNaN(estimatedSales)) {
-            showError("❌ Error lógico: Revisa que todos los campos estén completos."); return;
-        }
-        if (employees < 1 || salaryPerEmployee < 0 || trainingBudget < 0) {
-            showError("❌ Error lógico: Debes configurar correctamente a tu personal."); return;
-        }
-
-        const subUnits = subUnitsRaw;
-        const ia = calcIA(price, marketingSpend);
-
-        // Temporary group data for Tech2 net profit check
-        const tempGroupData = {
-            name: groupName, price, marketingSpend, ia,
-            plantUnits, subUnits, prodCost, estimatedSales,
-            employees, salaryPerEmployee, trainingBudget,
-            shortTermDebt, longTermDebt, maintenanceCostPerUnit,
-            tax, costAdj, marketingAdj, mtd
-        };
-
-        // Temporarily update groupResults to compute correct DR
-        const tempResults = [...groupResults];
-        const tempIdx = tempResults.findIndex(g => g.name === groupName);
-        if (tempIdx !== -1) tempResults[tempIdx] = tempGroupData;
-        else tempResults.push(tempGroupData);
-
-        const tempDemands = calcAllDemands(tempResults, mtd);
-        const tempDR = tempDemands.find(d => d.name === groupName).dr;
-        const tempF = calcGroupFinancials(tempGroupData, tempDR);
-
-        // Tech2 validation
-        let tech2FinancingGap = 0;
-        let hasTech2 = false;
-        if (buyTech2) {
-            if (tempF.netProfit <= 0) {
-                showError(`❌ No es posible adquirir la Tecnología 2: La Utilidad Neta del período es ${formatCurr(tempF.netProfit)}, que es negativa o cero. Se requiere utilidad positiva para esta inversión.`);
-                return;
-            }
-            tech2FinancingGap = Math.max(0, tech2Cost - tempF.netProfit);
-            hasTech2 = true;
-        }
-
-        // Final group data with Tech2 gap added to short-term debt
-        const finalShortTermDebt = shortTermDebt + tech2FinancingGap;
-        const groupData = {
-            name: groupName, price, marketingSpend, ia,
-            plantUnits, subUnits, prodCost, estimatedSales,
-            employees, salaryPerEmployee, trainingBudget,
-            shortTermDebt: finalShortTermDebt, longTermDebt, maintenanceCostPerUnit,
-            tax, costAdj, marketingAdj, mtd,
-            buyTech2, tech2Cost, tech2FinancingGap, hasTech2,
-            baseShortTermDebt: shortTermDebt
-        };
-
-        if (existingIndex !== -1) {
-            groupResults[existingIndex] = groupData;
-        } else {
-            groupResults.push(groupData);
-        }
-        updateGroupCounter();
-
-        const allDemands = calcAllDemands(groupResults, mtd);
-        const myDR = allDemands.find(d => d.name === groupName).dr;
-        const f = calcGroupFinancials(groupData, myDR);
-
-        updateResultsUI_R1(f, groupData, myDR, tech2FinancingGap, hasTech2, tech2Cost);
-        updateInsights(f, groupData, myDR, groupResults.length, mtd);
-        updateCharts(allDemands, groupResults);
-
-        emptyState.classList.add("hidden");
-        resultsData.classList.remove("hidden");
-    }
-
-    // ─── PROCESAR RONDA 2 ─────────────────────────────────────
-    function processRound2(groupName) {
-        // Must have a Round 1 entry
-        const r1Group = groupResults.find(g => g.name === groupName);
-        if (!r1Group) {
-            showError(`❌ El grupo "${groupName}" no tiene datos de Ronda 1. Primero debe completar la Ronda 1.`);
-            return;
-        }
-
-        // Check if new round-2 entry exceeds cap
-        const existingIndex_R2 = groupResults_R2.findIndex(g => g.name === groupName);
-        if (existingIndex_R2 === -1 && groupResults_R2.length >= MAX_GROUPS) {
-            showError(`❌ Límite alcanzado: El simulador soporta un máximo de ${MAX_GROUPS} grupos.`);
-            return;
-        }
-
-        const hasTech2 = r1Group.hasTech2;
-
-        // Collect shared inputs
-        const mtd = parseInt(document.getElementById("mtd").value);
-        const costAdj = parseFloat(document.getElementById("cost_adj").value);
-        const marketingAdj = parseFloat(document.getElementById("marketing_adj").value);
-        const tax = parseFloat(document.getElementById("tax").value);
-        const price = parseFloat(document.getElementById("price").value);
-        const estimatedSales = parseInt(document.getElementById("estimated_sales").value);
-        const marketingSpend = parseFloat(document.getElementById("marketing_spend").value);
-        const employees = parseInt(document.getElementById("employees").value);
-        const salaryPerEmployee = parseFloat(document.getElementById("salary_per_employee").value);
-        const trainingBudget = parseFloat(document.getElementById("training_budget").value);
-        const shortTermDebt = parseFloat(document.getElementById("short_term_debt").value);
-        const longTermDebt = parseFloat(document.getElementById("long_term_debt").value);
-        const maintenanceCostPerUnit = parseFloat(document.getElementById("maintenance_cost").value);
-
-        // Collect production costs based on tech2 status
-        let prodCostT1, prodCostT2;
-        if (hasTech2) {
-            prodCostT1 = parseFloat(document.getElementById("r2_prod_cost_t1_tech").value);
-            prodCostT2 = parseFloat(document.getElementById("r2_prod_cost_t2").value);
-            if (isNaN(prodCostT2) || prodCostT2 <= 0) {
-                showError("❌ Debes ingresar el Costo Unitario de Producción de Tecnología 2."); return;
-            }
-        } else {
-            prodCostT1 = parseFloat(document.getElementById("r2_prod_cost_t1").value);
-            prodCostT2 = 0;
-        }
-
-        // Validations
-        if (isNaN(mtd) || mtd <= 0) { showError("❌ MTD debe ser mayor a 0."); return; }
-        if (price <= 0 || prodCostT1 <= 0) { showError("❌ El precio y el costo unitario deben ser mayores a $0."); return; }
-        if (isNaN(costAdj) || isNaN(marketingAdj) || isNaN(estimatedSales)) { showError("❌ Revisa que todos los campos estén completos."); return; }
-        if (employees < 1 || salaryPerEmployee < 0 || trainingBudget < 0) { showError("❌ Debes configurar correctamente a tu personal."); return; }
-
-        const ia = calcIA(price, marketingSpend);
-
-        const groupData_R2 = {
-            name: groupName, price, marketingSpend, ia,
-            estimatedSales, employees, salaryPerEmployee, trainingBudget,
-            shortTermDebt, longTermDebt, maintenanceCostPerUnit,
-            tax, costAdj, marketingAdj, mtd,
-            hasTech2, prodCostT1, prodCostT2
-        };
-
-        if (existingIndex_R2 !== -1) {
-            groupResults_R2[existingIndex_R2] = groupData_R2;
-        } else {
-            groupResults_R2.push(groupData_R2);
-        }
-
-        const allDemands_R2 = calcAllDemands(groupResults_R2, mtd);
-        const myDR = allDemands_R2.find(d => d.name === groupName).dr;
-        const f = calcGroupFinancials_R2(groupData_R2, myDR);
-
-        updateResultsUI_R2(f, groupData_R2, myDR);
-        updateInsights(f, groupData_R2, myDR, groupResults_R2.length, mtd);
-        updateCharts(allDemands_R2, groupResults_R2, true);
-
-        emptyState.classList.add("hidden");
-        resultsData.classList.remove("hidden");
-    }
-
-    // ─── ACTUALIZAR UI RESULTADOS R1 ──────────────────────────
+    // --- HTML UI UPDATERS ---
     function updateResultsUI_R1(f, groupData, myDR, tech2FinancingGap, hasTech2, tech2Cost) {
-        resVentas.innerText = formatCurr(f.totalSales);
+        document.getElementById("res-ventas").innerText = formatCurr(f.totalSales);
+        document.getElementById("res-costo-propio").innerText = formatCurr(f.totalPropio + f.totalSalaries + f.trainingBudget);
+        document.getElementById("row-costo-sub").style.display = f.totalSub > 0 ? "flex" : "none";
+        document.getElementById("res-costo-sub").innerText = formatCurr(f.totalSub);
 
-        const costoProduccion = f.totalPropio + f.totalSalaries + f.trainingBudget;
-        resCostoPropio.innerText = formatCurr(costoProduccion);
-
-        rowCostoSub.style.display = f.totalSub > 0 ? "flex" : "none";
-        resCostoSub.innerText = formatCurr(f.totalSub);
-
+        const resGross = document.getElementById("res-gross");
         resGross.innerText = formatCurr(f.grossProfit);
         resGross.style.color = f.grossProfit >= 0 ? "var(--accent)" : "var(--danger)";
 
-        const rowMaintenance = document.getElementById("row-maintenance");
-        rowMaintenance.style.display = f.maintenanceCost > 0 ? "flex" : "none";
+        document.getElementById("row-maintenance").style.display = f.maintenanceCost > 0 ? "flex" : "none";
         document.getElementById("res-maintenance").innerText = formatCurr(f.maintenanceCost);
+        document.getElementById("res-finance-cp").innerText = formatCurr(groupData.baseShortTermDebt);
 
-        // Show base short-term debt
-        resFinanceCp.innerText = formatCurr(groupData.baseShortTermDebt);
-
-        // Tech2 financing gap row
         const rowTech2Finance = document.getElementById("row-tech2-finance");
-        const resTech2Finance = document.getElementById("res-tech2-finance");
         if (hasTech2 && tech2FinancingGap > 0) {
             rowTech2Finance.style.display = "flex";
-            resTech2Finance.innerText = formatCurr(tech2FinancingGap);
+            document.getElementById("res-tech2-finance").innerText = formatCurr(tech2FinancingGap);
         } else {
             rowTech2Finance.style.display = "none";
         }
 
-        resAp.innerText = formatCurr(f.gastosAP);
+        document.getElementById("res-ap").innerText = formatCurr(f.gastosAP);
 
+        const resEbitda = document.getElementById("res-ebitda");
         resEbitda.innerText = formatCurr(f.ebitda);
         resEbitda.style.color = f.ebitda >= 0 ? "var(--accent)" : "var(--danger)";
 
-        resAmortization.innerText = formatCurr(AMORTIZATION);
+        document.getElementById("res-amortization").innerText = formatCurr(AMORTIZATION);
 
+        const resEbit = document.getElementById("res-ebit");
         resEbit.innerText = formatCurr(f.ebit);
         resEbit.style.color = f.ebit >= 0 ? "var(--accent)" : "var(--danger)";
 
-        rowLongTerm.style.display = groupData.longTermDebt > 0 ? "flex" : "none";
-        resLongTerm.innerText = formatCurr(groupData.longTermDebt);
+        document.getElementById("row-long-term").style.display = groupData.longTermDebt > 0 ? "flex" : "none";
+        document.getElementById("res-long-term").innerText = formatCurr(groupData.longTermDebt);
 
+        const resEbt = document.getElementById("res-ebt");
         resEbt.innerText = formatCurr(f.ebt);
         resEbt.style.color = f.ebt >= 0 ? "var(--accent)" : "var(--danger)";
 
-        resTax.innerText = formatCurr(f.taxAmount);
+        document.getElementById("res-tax").innerText = formatCurr(f.taxAmount);
 
+        const resUtilidad = document.getElementById("res-utilidad");
         resUtilidad.innerText = formatCurr(f.netProfit);
         resUtilidad.style.color = f.netProfit >= 0 ? "var(--accent)" : "var(--danger)";
 
-        // Tech2 summary
         const rowTech2Summary = document.getElementById("row-tech2-summary");
-        const resTech2SummaryText = document.getElementById("res-tech2-summary-text");
         if (hasTech2) {
             rowTech2Summary.style.display = "flex";
             const netCover = Math.min(f.netProfit, tech2Cost);
-            resTech2SummaryText.innerHTML = `✨ <b>Tecnología 2 adquirida:</b> ${formatCurr(tech2Cost)} — Cubierto con Utilidad Neta: ${formatCurr(netCover)}${tech2FinancingGap > 0 ? ` | Gasto Financiero CP adicional: ${formatCurr(tech2FinancingGap)}` : " | Cubierto completamente con utilidad neta 🎉"}`;
+            document.getElementById("res-tech2-summary-text").innerHTML = `✨ <b>Tecnología 2:</b> ${formatCurr(tech2Cost)} | Cubierto Utilidad Neta: ${formatCurr(netCover)}${tech2FinancingGap > 0 ? ` | Gasto Fin. Adicional: ${formatCurr(tech2FinancingGap)}` : ""}`;
         } else {
             rowTech2Summary.style.display = "none";
         }
 
+        const resRoi = document.getElementById("res-roi");
         resRoi.innerText = f.roi.toFixed(2) + "%";
         resRoi.style.color = f.roi >= 0 ? "var(--accent)" : "var(--danger)";
 
-        kpiDemand.innerText = myDR + " unid.";
-        kpiSold.innerText = f.soldUnits + " unid.";
-        kpiStock.innerText = f.unsoldUnits + " unid.";
+        document.getElementById("kpi-demand").innerText = myDR + " un.";
+        document.getElementById("kpi-sold").innerText = f.soldUnits + " un.";
+        document.getElementById("kpi-stock").innerText = f.unsoldUnits + " un.";
 
-        const errText = f.estimationError > 0 ? `+${f.estimationError} unid.` : `${f.estimationError} unid.`;
-        kpiEstimationError.innerText = errText;
-        kpiEstimationError.style.color = f.estimationError === 0 ? "var(--accent)" : "var(--danger)";
+        const kpiErr = document.getElementById("kpi-estimation-error");
+        kpiErr.innerText = (f.estimationError > 0 ? "+" : "") + f.estimationError + " un.";
+        kpiErr.style.color = f.estimationError === 0 ? "var(--accent)" : "var(--danger)";
     }
 
-    // ─── ACTUALIZAR UI RESULTADOS R2 ──────────────────────────
     function updateResultsUI_R2(f, groupData, myDR) {
-        resVentas.innerText = formatCurr(f.totalSales);
+        document.getElementById("res-ventas").innerText = formatCurr(f.totalSales);
+        document.getElementById("res-costo-propio").innerText = formatCurr(f.totalPropio + f.totalSalaries + f.trainingBudget);
+        document.getElementById("row-costo-sub").style.display = f.totalSub > 0 ? "flex" : "none";
+        document.getElementById("res-costo-sub").innerText = formatCurr(f.totalSub);
 
-        const costoProduccion = f.totalPropio + f.totalSalaries + f.trainingBudget;
-        resCostoPropio.innerText = formatCurr(costoProduccion);
-
-        rowCostoSub.style.display = f.totalSub > 0 ? "flex" : "none";
-        resCostoSub.innerText = formatCurr(f.totalSub);
-
+        const resGross = document.getElementById("res-gross");
         resGross.innerText = formatCurr(f.grossProfit);
         resGross.style.color = f.grossProfit >= 0 ? "var(--accent)" : "var(--danger)";
 
-        const rowMaintenance = document.getElementById("row-maintenance");
-        rowMaintenance.style.display = f.maintenanceCost > 0 ? "flex" : "none";
+        document.getElementById("row-maintenance").style.display = f.maintenanceCost > 0 ? "flex" : "none";
         document.getElementById("res-maintenance").innerText = formatCurr(f.maintenanceCost);
+        document.getElementById("res-finance-cp").innerText = formatCurr(f.gastosFinancieros);
 
-        resFinanceCp.innerText = formatCurr(f.gastosFinancieros);
         document.getElementById("row-tech2-finance").style.display = "none";
         document.getElementById("row-tech2-summary").style.display = "none";
 
-        resAp.innerText = formatCurr(f.gastosAP);
+        document.getElementById("res-ap").innerText = formatCurr(f.gastosAP);
 
+        const resEbitda = document.getElementById("res-ebitda");
         resEbitda.innerText = formatCurr(f.ebitda);
         resEbitda.style.color = f.ebitda >= 0 ? "var(--accent)" : "var(--danger)";
 
-        resAmortization.innerText = formatCurr(AMORTIZATION);
+        document.getElementById("res-amortization").innerText = formatCurr(AMORTIZATION);
 
+        const resEbit = document.getElementById("res-ebit");
         resEbit.innerText = formatCurr(f.ebit);
         resEbit.style.color = f.ebit >= 0 ? "var(--accent)" : "var(--danger)";
 
-        rowLongTerm.style.display = groupData.longTermDebt > 0 ? "flex" : "none";
-        resLongTerm.innerText = formatCurr(groupData.longTermDebt);
+        document.getElementById("row-long-term").style.display = groupData.longTermDebt > 0 ? "flex" : "none";
+        document.getElementById("res-long-term").innerText = formatCurr(groupData.longTermDebt);
 
+        const resEbt = document.getElementById("res-ebt");
         resEbt.innerText = formatCurr(f.ebt);
         resEbt.style.color = f.ebt >= 0 ? "var(--accent)" : "var(--danger)";
 
-        resTax.innerText = formatCurr(f.taxAmount);
+        document.getElementById("res-tax").innerText = formatCurr(f.taxAmount);
 
+        const resUtilidad = document.getElementById("res-utilidad");
         resUtilidad.innerText = formatCurr(f.netProfit);
         resUtilidad.style.color = f.netProfit >= 0 ? "var(--accent)" : "var(--danger)";
 
+        const resRoi = document.getElementById("res-roi");
         resRoi.innerText = f.roi.toFixed(2) + "%";
         resRoi.style.color = f.roi >= 0 ? "var(--accent)" : "var(--danger)";
 
-        kpiDemand.innerText = myDR + " unid.";
-        kpiSold.innerText = f.soldUnits + " unid.";
-        kpiStock.innerText = f.unsoldUnits + " unid.";
+        document.getElementById("kpi-demand").innerText = myDR + " un.";
+        document.getElementById("kpi-sold").innerText = f.soldUnits + " un.";
+        document.getElementById("kpi-stock").innerText = f.unsoldUnits + " un.";
 
-        const errText = f.estimationError > 0 ? `+${f.estimationError} unid.` : `${f.estimationError} unid.`;
-        kpiEstimationError.innerText = errText;
-        kpiEstimationError.style.color = f.estimationError === 0 ? "var(--accent)" : "var(--danger)";
+        const kpiErr = document.getElementById("kpi-estimation-error");
+        kpiErr.innerText = (f.estimationError > 0 ? "+" : "") + f.estimationError + " un.";
+        kpiErr.style.color = f.estimationError === 0 ? "var(--accent)" : "var(--danger)";
     }
 
-    // ─── MENSAJES EDUCATIVOS ───────────────────────────────────
     function updateInsights(f, groupData, myDR, totalGroups, mtd) {
+        const insightBox = document.getElementById("insight-box");
         let insightMsg = "";
-
-        if (f.subAlertFired) {
-            insightMsg += `⚠️ <b>Alerta de Subcontratación:</b> El sistema aplicó el tope automáticamente.<br><br>`;
-        }
+        if (f.subAlertFired) insightMsg += `⚠️ <b>Alerta:</b> Tope de subcontratación de 300 aplicado automáticamente.<br><br>`;
 
         const marginRatio = groupData.price / (groupData.prodCostT1 || groupData.prodCost || 1);
-        if (marginRatio < 1) {
-            insightMsg += "🚨 <b>Guerra de Precios:</b> Tu precio de venta es menor a tu costo base. Estás destruyendo tu rentabilidad.";
-        } else {
-            insightMsg += "✅ <b>Operación:</b> Tu precio cubre los costos base de producción.";
-        }
+        if (marginRatio < 1) insightMsg += "🚨 <b>Guerra de Precios:</b> Precio de venta menor a tu costo base.";
+        else insightMsg += "✅ <b>Operación:</b> Tu precio cubre los costos base.";
 
-        if (f.unsoldUnits > 0) {
-            insightMsg += `<br><br>📦 <b>Exceso de Inventario (${f.unsoldUnits} unid.):</b> Produciste más de lo que el mercado te asignó. Ese capital inmovilizado genera costos de mantenimiento.`;
-        } else if (f.soldUnits === f.ptd && myDR > f.ptd) {
-            insightMsg += `<br><br>🔥 <b>Quiebre de Stock (${myDR - f.ptd} unid.):</b> El mercado te hubiera comprado más pero no tenías stock. Costo de oportunidad perdido.`;
-        } else if (f.unsoldUnits === 0 && myDR === f.ptd) {
-            insightMsg += `<br><br>🎯 <b>Equilibrio Perfecto:</b> ¡Alineaste tu producción exactamente con tu demanda real!`;
-        }
-
-        if (f.estimationError > 0) {
-            insightMsg += `<br><br>📊 <b>Error de Estimación (+${f.estimationError} unid.):</b> Sobreestimaste tu demanda.`;
-        } else if (f.estimationError < 0) {
-            insightMsg += `<br><br>📊 <b>Error de Estimación (${f.estimationError} unid.):</b> Subestimaste tu demanda.`;
-        } else {
-            insightMsg += `<br><br>🎯 <b>Estimación Perfecta:</b> ¡Predijiste exactamente la demanda que el mercado te asignó!`;
-        }
+        if (f.unsoldUnits > 0) insightMsg += `<br><br>📦 <b>Exceso de Inventario (${f.unsoldUnits} unid.):</b> Costos de mantenimiento generados.`;
+        else if (f.soldUnits === f.ptd && myDR > f.ptd) insightMsg += `<br><br>🔥 <b>Quiebre de Stock (${myDR - f.ptd} unid.):</b> Demanda perdida por falta de producción.`;
+        else if (f.unsoldUnits === 0 && myDR === f.ptd) insightMsg += `<br><br>🎯 <b>Equilibrio Perfecto:</b> Producción igual a demanda real.`;
 
         if (totalGroups > 1) {
-            insightMsg += `<br><br>🏆 <b>Mercado Competitivo:</b> Hay ${totalGroups} equipos compitiendo por ${mtd.toLocaleString()} unidades totales. Tu cuota: ${myDR} unid. (${((myDR / mtd) * 100).toFixed(1)}% del mercado).`;
+            insightMsg += `<br><br>🏆 <b>Competencia:</b> Grupos activos: ${totalGroups}. MTD total: ${mtd}. Tu cuota: ${myDR} unid.`;
         }
-
         insightBox.innerHTML = insightMsg;
     }
 
-    // ─── GRÁFICOS ──────────────────────────────────────────────
-    function updateCharts(allDemands, source, isR2 = false) {
-        const allFinancials = source.map(group => {
+    function showError(msg) {
+        errorBox.innerText = msg;
+        errorBox.classList.remove("hidden");
+    }
+
+    // --- CHART GLOBALS ---
+    function updateChartsGlobal() {
+        const conf = getAdminConfig();
+        const mtd = conf.mtd;
+
+        // Decide what to graph: Ideally plot Round 2 if groups exist in R2, else plot R1
+        const g2 = getGroupsData(2);
+        const g1 = getGroupsData(1);
+        const isR2 = g2.length > 0;
+        const targetGroups = isR2 ? g2 : g1;
+
+        if (targetGroups.length === 0) return; // Nothing to plot yet
+
+        const allDemands = calcAllDemands(targetGroups, mtd);
+
+        const allFinancials = targetGroups.map(group => {
             const demandEntry = allDemands.find(d => d.name === group.name);
             const dr = demandEntry ? demandEntry.dr : 0;
             const f = isR2 ? calcGroupFinancials_R2(group, dr) : calcGroupFinancials(group, dr);
@@ -692,7 +830,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         allFinancials.sort((a, b) => b.profit - a.profit);
-
         const labels = allFinancials.map(g => g.name);
         const dataUnits = allFinancials.map(g => g.units);
         const dataProfit = allFinancials.map(g => g.profit);
@@ -700,7 +837,6 @@ document.addEventListener("DOMContentLoaded", () => {
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = "'Inter', sans-serif";
 
-        // Units Chart
         if (rankingChartUnits) {
             rankingChartUnits.data.labels = labels;
             rankingChartUnits.data.datasets[0].data = dataUnits;
@@ -710,34 +846,19 @@ document.addEventListener("DOMContentLoaded", () => {
             rankingChartUnits = new Chart(ctxU, {
                 type: 'line',
                 data: {
-                    labels,
-                    datasets: [{
-                        label: 'Ventas Efectivas',
-                        data: dataUnits,
-                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                        borderColor: '#38bdf8',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#38bdf8',
-                        pointHoverBackgroundColor: '#38bdf8',
-                        pointHoverBorderColor: '#fff',
-                        fill: true,
-                        tension: 0.3
+                    labels, datasets: [{
+                        label: 'Ventas Efectivas', data: dataUnits,
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', borderWidth: 2,
+                        pointBackgroundColor: '#fff', pointBorderColor: '#38bdf8', fill: true, tension: 0.3
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
-                    }
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
                 }
             });
         }
 
-        // Profit Chart
         const profitBGs = dataProfit.map(val => val >= 0 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(239, 68, 68, 0.6)');
         const profitBorders = dataProfit.map(val => val >= 0 ? '#10b981' : '#ef4444');
 
@@ -752,33 +873,16 @@ document.addEventListener("DOMContentLoaded", () => {
             rankingChartProfit = new Chart(ctxP, {
                 type: 'bar',
                 data: {
-                    labels,
-                    datasets: [{
-                        label: 'Utilidad Neta ($)',
-                        data: dataProfit,
-                        backgroundColor: profitBGs,
-                        borderColor: profitBorders,
-                        borderWidth: 1,
-                        borderRadius: 4
+                    labels, datasets: [{
+                        label: 'Utilidad Neta ($)', data: dataProfit,
+                        backgroundColor: profitBGs, borderColor: profitBorders, borderWidth: 1, borderRadius: 4
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
-                    }
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
                 }
             });
         }
-    }
-
-    function showError(msg) {
-        errorBox.innerText = msg;
-        errorBox.classList.remove("hidden");
-        resultsData.classList.add("hidden");
-        emptyState.classList.remove("hidden");
     }
 });

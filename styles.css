@@ -317,3 +317,53 @@ hr {
     color: var(--text-muted);
     font-size: 0.95rem;
 }
+
+/* NUEVOS ESTILOS PARA PANTALLAS Y ROLES */
+.screen {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+input[readonly],
+input.input-fixed {
+    background-color: #e2e8f0;
+    color: var(--text-muted);
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+}
+
+input[readonly]:focus,
+input.input-fixed:focus {
+    box-shadow: none;
+    border-color: #cbd5e1;
+    background-color: #e2e8f0;
+}
+
+.badge-admin {
+    background-color: var(--primary);
+    color: white;
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
