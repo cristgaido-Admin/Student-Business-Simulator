@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Business Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="background-animated"></div>
+    <div class="container">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Student Business <span class="highlight">Simulator</span></h1>
+                    <p>Simulador de Negocios · Dos Rondas</p>
+                </div>
+                <!-- Student Logout Button (Hidden initially) -->
+                <button type="button" class="btn-primary hidden" id="btn-logout-student"
+                    style="background: var(--text-muted); border-color: var(--text-muted); padding: 0.5rem 1rem;">⬅️
+                    Cambiar Rol</button>
+            </div>
+        </header>
+
+        <!-- PANTALLA DE LOGIN -->
+        <div id="login-screen" class="screen active">
+            <div class="card full-width"
+                style="max-width: 500px; margin: 0 auto; padding: 2.5rem; border-top-color: var(--primary);">
+                <form id="login-form">
+                    <h2 style="text-align: center; border: none; font-size: 1.5rem; margin-bottom: 1.5rem;">Ingreso al
+                        Simulador</h2>
+                    <div class="role-selection" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; justify-content: center;">
+                        <button type="button" class="btn-primary" id="btn-role-student" style="flex: 1; padding: 0.5rem; font-size: 1rem;">Estudiante</button>
+                        <button type="button" class="btn-primary" id="btn-role-admin" style="background: var(--text-muted); border-color: var(--text-muted); flex: 1; padding: 0.5rem; font-size: 1rem;">Administrador</button>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-username">Usuario (Nombre del Equipo)</label>
+                        <input type="text" id="login-username" placeholder="Ingresa tu usuario"
+                            style="font-size: 1.1rem; padding: 1rem;" autocomplete="username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Contraseña</label>
+                        <input type="password" id="login-password" placeholder="Ingresa tu contraseña"
+                            style="font-size: 1.1rem; padding: 1rem;" autocomplete="current-password" required>
+                    </div>
+                    <small id="login-hint" class="hint" style="text-align: center; display: block; margin-bottom: 1rem;">
+                        *Si eres un grupo nuevo ingresa un usuario y contraseña para registrarte automáticamente (Máximo 5
+                        grupos).
+                    </small>
+                    <div class="full-width" style="text-align: center;">
+                        <button type="submit" class="btn-primary" id="btn-login"
+                            style="width: 100%; padding: 1rem; font-size: 1.1rem;">Ingresar</button>
+                        <div id="login-error" class="error-toast hidden" style="margin-top: 1rem;"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE ADMINISTRADOR -->
+        <div id="admin-screen" class="screen">
+            <div class="dashboard">
+                <div class="card strategy-card full-width">
+                    <h2>Panel de Administrador (Configuración Global)</h2>
+                    <form id="admin-form">
+                        <div class="section strategy"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+                            <div class="input-group">
+                                <label for="admin_user">Usuario Administrador</label>
+                                <input type="text" id="admin_user" required value="admin">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_pass">Contraseña Administrador</label>
+                                <input type="text" id="admin_pass" required value="admin123">
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <hr style="margin: 0;">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_mtd">Mercado Total Disponible (MTD)</label>
+                                <input type="number" id="admin_mtd" required value="5000">
+                                <small class="hint">Demanda global.</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_cost_adj">Var. Costos Producción (%)</label>
+                                <input type="number" id="admin_cost_adj" step="0.1" required value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_marketing_adj">Efectividad Publicitaria (%)</label>
+                                <input type="number" id="admin_marketing_adj" step="0.1" required value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_tax">Tax (%)</label>
+                                <input type="number" id="admin_tax" step="0.1" required value="30">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_prod_cost">Costo Un. Prod. (Base T1) ($)</label>
+                                <input type="number" id="admin_prod_cost" step="0.01" required value="50">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_prod_cost_t2">Costo Un. Prod. (Base T2) ($)</label>
+                                <input type="number" id="admin_prod_cost_t2" step="0.01" required value="60">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_tech2_cost">Costo Adquisición Tec. 2 ($)</label>
+                                <input type="number" id="admin_tech2_cost" step="0.01" required value="30000">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                            <button type="submit" class="btn-primary">💾 Guardar Configuración</button>
+                            <button type="button" class="btn-primary" id="btn-refresh-admin">🔄 Actualizar
+                                Gráficos</button>
+                            <button type="button" class="btn-primary" id="btn-reset-students"
+                                style="background-color: #f59e0b; border-color: #f59e0b;">🔄 Resetear Solo
+                                Estudiantes</button>
+                            <button type="button" class="btn-primary" id="btn-reset-admin"
+                                style="background-color: var(--danger); border-color: var(--danger);">🗑️ Reiniciar Todo
+                                (Admin Inc.)</button>
+                            <button type="button" class="btn-primary" id="btn-logout-admin"
+                                style="background: var(--text-muted); border-color: var(--text-muted); margin-left: auto;">⬅️
+                                Salir</button>
+                        </div>
+                        <div id="admin-msg" class="insight-box hidden" style="margin-top: 1rem;"></div>
+                    </form>
+                </div>
+
+                <!-- GESTIÓN DE ESTUDIANTES -->
+                <div class="card full-width" style="border-top-color: var(--accent);">
+                    <h2>Gestión de Accesos de Estudiantes</h2>
+                    <div id="student-management-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+                        <!-- Student list will be injected here -->
+                    </div>
+                    <button type="button" class="btn-primary" id="btn-reset-all-credentials" style="background: var(--danger); border-color: var(--danger); width: 100%;">🗑️ Resetear TODAS las contraseñas</button>
+                    <button type="button" class="btn-primary" id="btn-reset-students" style="background: var(--text-muted); border-color: var(--text-muted); width: 100%; margin-top: 1rem;">🗑️ Borrar todos los equipos (Peligro)</button>
+                </div>
+
+                <!-- GRÁFICO COMPARATIVO - UNIDADES -->
+                <div class="card chart-card">
+                    <h2>📊 Unidades Vendidas por Grupo</h2>
+                    <div class="chart-container">
+                        <canvas id="rankingChartUnits"></canvas>
+                    </div>
+                </div>
+
+                <!-- GRÁFICO COMPARATIVO - UTILIDAD -->
+                <div class="card chart-card">
+                    <h2>💰 Utilidad Neta por Grupo</h2>
+                    <div class="chart-container">
+                        <canvas id="rankingChartProfit"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE ESTUDIANTE -->
+        <div id="student-screen" class="screen">
+            <!-- ROUND TABS -->
+            <div class="round-tabs">
+                <button class="round-tab active" id="tab-r1" onclick="switchRound(1)">
+                    🏁 Ronda 1
+                </button>
+                <button class="round-tab" id="tab-r2" onclick="switchRound(2)">
+                    🚀 Ronda 2
+                </button>
+            </div>
+
+            <form id="sim-form">
+                <div class="dashboard">
+                    <!-- ÁREA DE GRUPO -->
+                    <div class="card full-width" style="padding: 1.5rem 2.5rem;">
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+                            <div class="input-group" style="margin-bottom: 0; flex:1; min-width:200px;">
+                                <label for="group_name" style="font-size: 1.1rem; font-weight: 600;">Nombre del
+                                    Grupo</label>
+                                <input type="text" id="group_name" readonly
+                                    style="font-size: 1.1rem; padding: 1rem; background-color: #e2e8f0; font-weight: bold;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE ESTRATEGIA Y MERCADO -->
+                    <div class="card strategy-card">
+                        <h2>Estrategia y Entorno <span class="badge-admin">Admin</span></h2>
+                        <div class="section strategy">
+                            <div class="input-group">
+                                <label for="mtd">Mercado Total Disponible - MTD (Unids)</label>
+                                <input type="number" id="mtd" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="cost_adj">Variación Costos Producción (%)</label>
+                                <input type="number" id="cost_adj" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="marketing_adj">Efectividad Publicitaria (%)</label>
+                                <input type="number" id="marketing_adj" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="tax">Tax (%)</label>
+                                <input type="number" id="tax" readonly class="input-fixed" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE OPERACIONES RONDA 1 -->
+                    <div class="card operations-card" id="ops-r1">
+                        <h2>Operaciones <span class="round-badge">Ronda 1</span></h2>
+                        <div class="section operations">
+                            <div class="input-group">
+                                <label for="prod_cost">Costo Un. Producción ($) </label>
+                                <input type="number" id="prod_cost" min="1" step="0.01" required value="50">
+                            </div>
+                            <div class="input-group" style="display:none;">
+                                <label for="tech2_cost">Costo Tecnología 2 ($)</label>
+                                <input type="number" id="tech2_cost" readonly value="0">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="plant_units">Producción en Planta (Unidades)</label>
+                                <input type="number" id="plant_units" min="0" max="2000" required
+                                    placeholder="Máx 2,000">
+                                <small class="hint">Capacidad máxima: 2,000 unid.</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="sub_units">Subcontratación (Unidades)</label>
+                                <input type="number" id="sub_units" min="0" max="300" required placeholder="Máx 300">
+                                <small class="hint">⚠️ Máx. 300 unids. Recargo del 50% sobre costo de
+                                    producción.</small>
+                            </div>
+
+                            <!-- TECNOLOGÍA 2 TOGGLE -->
+                            <div class="input-group tech2-group full-col" id="tech2-toggle-group">
+                                <label class="tech2-label">
+                                    Tecnología 2
+                                    <span id="tech2-cost-badge" class="tech2-cost-badge">$0.00</span>
+                                </label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="buy_tech2">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Adquirir Tecnología 2</span>
+                                </label>
+                                <small class="hint">
+                                    La Tecnología 2 se cubrirá primero con la Utilidad Neta del período.
+                                    El saldo restante se registrará automáticamente como Gasto Financiero CP.
+                                    <br><strong>⚠️ No se puede comprar si la Utilidad Neta es negativa.</strong>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE OPERACIONES RONDA 2 -->
+                    <div class="card operations-card hidden" id="ops-r2">
+                        <h2>Operaciones <span class="round-badge r2">Ronda 2</span></h2>
+
+                        <!-- Para grupos SIN Tecnología 2 -->
+                        <div id="ops-r2-no-tech2">
+                            <p class="ops-section-title">🔧 Tecnología 1</p>
+                            <div class="section operations">
+                                <div class="input-group">
+                                    <label for="r2_prod_cost_t1">Costo Un. Producción Tec. 1 ($) </label>
+                                    <input type="number" id="r2_prod_cost_t1" min="1" step="0.01" required value="50">
+                                </div>
+                                <div class="input-group">
+                                    <label>Producción en Planta Tec. 1 (Unidades)</label>
+                                    <input type="number" value="3000" disabled class="input-fixed">
+                                    <small class="hint">Capacidad fija: 3,000 unid.</small>
+                                </div>
+                                <div class="input-group">
+                                    <label>Subcontratación Tec. 1 (Unidades)</label>
+                                    <input type="number" value="500" disabled class="input-fixed">
+                                    <small class="hint">Fijo: 500 unid. Costo = +5% unit.</small>
+                                </div>
+                            </div>
+
+                            <!-- Tec. 2 deshabilitada -->
+                            <div class="tech2-disabled-box">
+                                <span class="lock-icon">🔒</span>
+                                <div>
+                                    <strong>Tecnología 2 — No disponible</strong>
+                                    <p>Este grupo no adquirió la Tecnología 2 en la Ronda 1.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Para grupos CON Tecnología 2 -->
+                        <div id="ops-r2-with-tech2" class="hidden">
+                            <p class="ops-section-title">🔧 Tecnología 1</p>
+                            <div class="section operations">
+                                <div class="input-group">
+                                    <label for="r2_prod_cost_t1_tech">Costo Un. Producción Tec. 1 ($) </label>
+                                    <input type="number" id="r2_prod_cost_t1_tech" min="1" step="0.01" required
+                                        value="50">
+                                </div>
+                                <div class="input-group">
+                                    <label>Producción en Planta Tec. 1 (Unidades)</label>
+                                    <input type="number" value="1500" disabled class="input-fixed">
+                                    <small class="hint">Capacidad fija: 1,500 unid.</small>
+                                </div>
+                                <div class="input-group">
+                                    <label>Subcontratación Tec. 1 (Unidades)</label>
+                                    <input type="number" value="500" disabled class="input-fixed">
+                                    <small class="hint">Fijo: 500 unid. Costo = +15% unit.</small>
+                                </div>
+                            </div>
+
+                            <p class="ops-section-title tech2-title">✨ Tecnología 2 <span
+                                    class="badge-unlocked">Desbloqueada</span></p>
+                            <div class="section operations">
+                                <div class="input-group">
+                                    <label for="r2_prod_cost_t2">Costo Un. Producción Tec. 2 ($) </label>
+                                    <input type="number" id="r2_prod_cost_t2" min="1" step="0.01" required value="60">
+                                </div>
+                                <div class="input-group">
+                                    <label>Producción en Planta Tec. 2 (Unidades)</label>
+                                    <input type="number" value="1000" disabled class="input-fixed">
+                                    <small class="hint">Capacidad fija: 1,000 unid.</small>
+                                </div>
+                                <div class="input-group">
+                                    <label>Subcontratación Tec. 2 (Unidades)</label>
+                                    <input type="number" value="300" disabled class="input-fixed">
+                                    <small class="hint">Fijo: 300 unid. Costo = +20% unit.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE MARKETING -->
+                    <div class="card marketing-card">
+                        <h2>Marketing</h2>
+                        <div class="section marketing">
+                            <div class="input-group">
+                                <label for="price">Precio de Venta ($)</label>
+                                <input type="number" id="price" min="1" step="0.01" required placeholder="Ej: 150.00">
+                            </div>
+                            <div class="input-group">
+                                <label for="estimated_sales">Ventas Estimadas (Unidades)</label>
+                                <input type="number" id="estimated_sales" min="0" required placeholder="Ej: 800">
+                                <small class="hint">Usado para Error de Estimación.</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="marketing_spend">Inversión en A&P ($)</label>
+                                <input type="number" id="marketing_spend" min="0" step="0.01" required
+                                    placeholder="Ej: 5000.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE PERSONAL -->
+                    <div class="card hr-card">
+                        <h2>Recursos Humanos</h2>
+                        <div class="section hr">
+                            <div class="input-group">
+                                <label for="employees">Cantidad de Empleados</label>
+                                <input type="number" id="employees" min="1" required placeholder="Ej: 10">
+                            </div>
+                            <div class="input-group">
+                                <label for="salary_per_employee">Salario Promedio ($)</label>
+                                <input type="number" id="salary_per_employee" min="0" step="0.01" required
+                                    placeholder="Ej: 1500">
+                            </div>
+                            <div class="input-group">
+                                <label for="training_budget">Inversión en Capacitación ($)</label>
+                                <input type="number" id="training_budget" min="0" step="0.01" required
+                                    placeholder="Ej: 20000">
+                                <small class="hint">-1% Costo Prod. por c/ $10,000 inv.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ÁREA DE FINANCIAMIENTO -->
+                    <div class="card finance-input-card">
+                        <h2>Financiamiento</h2>
+                        <div class="section finance-in">
+                            <div class="input-group">
+                                <label for="short_term_debt">Gastos Financieros CP ($)</label>
+                                <input type="number" id="short_term_debt" min="0" step="0.01" required
+                                    placeholder="Intereses CP" value="0">
+                                <small class="hint" id="short-term-tech2-hint"
+                                    style="display:none; color:var(--primary);">
+                                    💡 Se incrementará auto por Tecnología 2.
+                                </small>
+                            </div>
+                            <div class="input-group">
+                                <label for="long_term_debt">Deuda a Largo Plazo ($)</label>
+                                <input type="number" id="long_term_debt" min="0" step="0.01" required
+                                    placeholder="Capital LP" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="maintenance_cost">Costo Mantenimiento ($/unid)</label>
+                                <input type="number" id="maintenance_cost" min="0" step="0.01" required
+                                    placeholder="Ej: 2.50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN PROCESAR -->
+                    <div class="full-width"
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 1rem;">
+                        <button type="submit" class="btn-primary"
+                            style="max-width: 400px; padding: 1.2rem; font-size: 1.2rem; width: 100%;">💾 Guardar y
+                            Procesar Decisión</button>
+                        <div id="error-message" class="error-toast hidden"
+                            style="max-width: 600px; width: 100%; text-align: left;">
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="dashboard" style="margin-top: 2rem;">
+                <!-- ÁREA DE FINANZAS DEL ESTUDIANTE -->
+                <div class="card results-card" id="results-panel">
+                    <h2>Resultados Grupo <span id="results-round-badge" class="round-badge">Ronda 1</span></h2>
+                    <div class="results-content hidden" id="results-data">
+                        <!-- INGRESOS -->
+                        <div class="result-row">
+                            <span>Ventas (+)</span>
+                            <span id="res-ventas" class="pos"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Costo de Producción (-)</span>
+                            <span id="res-costo-propio" class="neg"></span>
+                        </div>
+                        <div class="result-row" id="row-costo-sub">
+                            <span>Costo de Subcontratación (-)</span>
+                            <span id="res-costo-sub" class="neg"></span>
+                        </div>
+                        <div class="result-row total">
+                            <span>Utilidad Bruta (=)</span>
+                            <span id="res-gross"></span>
+                        </div>
+                        <div class="result-row" id="row-maintenance">
+                            <span>Costo Mant. Inventario (-)</span>
+                            <span id="res-maintenance" class="neg"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Gastos Financieros CP (-)</span>
+                            <span id="res-finance-cp" class="neg"></span>
+                        </div>
+                        <div class="result-row" id="row-tech2-finance" style="display:none;">
+                            <span>⟶ Extra Financiamiento Tec. 2 (-)</span>
+                            <span id="res-tech2-finance" class="neg"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Gastos A&P (-)</span>
+                            <span id="res-ap" class="neg"></span>
+                        </div>
+                        <div class="result-row total">
+                            <span>EBITDA (=)</span>
+                            <span id="res-ebitda"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Amortización (-)</span>
+                            <span id="res-amortization" class="neg"></span>
+                        </div>
+                        <div class="result-row total">
+                            <span>EBIT (=)</span>
+                            <span id="res-ebit"></span>
+                        </div>
+                        <div class="result-row" id="row-long-term">
+                            <span>Deuda a Largo Plazo (-)</span>
+                            <span id="res-long-term" class="neg"></span>
+                        </div>
+                        <div class="result-row total">
+                            <span>EBT (=)</span>
+                            <span id="res-ebt"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Tax (-)</span>
+                            <span id="res-tax" class="neg"></span>
+                        </div>
+                        <hr>
+                        <div class="result-row total" style="color: var(--primary);">
+                            <span>Utilidad Neta (=)</span>
+                            <span id="res-utilidad"></span>
+                        </div>
+                        <div id="row-tech2-summary" class="tech2-summary-box" style="display:none;">
+                            <span id="res-tech2-summary-text"></span>
+                        </div>
+                        <div class="result-row">
+                            <span>Inversión Inicial Capital</span>
+                            <span>$500,000.00</span>
+                        </div>
+                        <div class="result-row total" style="color: var(--primary);">
+                            <span>Retorno (ROI)</span>
+                            <span id="res-roi"></span>
+                        </div>
+
+                        <div class="kpi-grid">
+                            <div class="kpi">
+                                <h4>Act. DR</h4>
+                                <p id="kpi-demand">0 unid.</p>
+                            </div>
+                            <div class="kpi">
+                                <h4>Ventas</h4>
+                                <p id="kpi-sold">0 unid.</p>
+                            </div>
+                            <div class="kpi">
+                                <h4>Stock</h4>
+                                <p id="kpi-stock">0 unid.</p>
+                            </div>
+                            <div class="kpi">
+                                <h4>Stk Err</h4>
+                                <p id="kpi-estimation-error">0 un.</p>
+                            </div>
+                        </div>
+                        <div class="insight-box" id="insight-box">
+                            <!-- Feedback educativo aquí -->
+                        </div>
+                    </div>
+                    <div class="empty-state" id="empty-state">
+                        <p>Tus resultados financieros aparecerán aquí cuando el Admin procese los datos de todos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

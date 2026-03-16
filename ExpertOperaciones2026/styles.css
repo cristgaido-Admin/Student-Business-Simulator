@@ -1,0 +1,369 @@
+:root {
+    --bg-main: #f8fafc;
+    /* Light slate background */
+    --card-bg: #ffffff;
+    --primary: #0f172a;
+    /* Corporate dark slate */
+    --primary-hover: #334155;
+    --accent: #059669;
+    /* Emerald for positive financial outcomes */
+    --danger: #dc2626;
+    /* Red for negative */
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --input-bg: #f8fafc;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+    padding: 3rem 2rem;
+}
+
+.background-animated {
+    display: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: left;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--text-main);
+}
+
+.highlight {
+    color: var(--primary);
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-top-width: 4px;
+}
+
+/* Colores específicos para cada tarjeta para dar profesionalismo */
+.operations-card {
+    border-top-color: #3b82f6;
+}
+
+/* Azul corporativo */
+.marketing-card {
+    border-top-color: #8b5cf6;
+}
+
+/* Púrpura estratégico */
+.strategy-card {
+    border-top-color: #0ea5e9;
+}
+
+/* Celeste mercado */
+.hr-card {
+    border-top-color: #10b981;
+    /* Verde Personal */
+}
+
+/* Verde Personal */
+.full-width {
+    border-top-color: #0f172a;
+}
+
+/* Gris oscuro para header */
+.results-card {
+    border-top-color: #ef4444;
+    /* Rojo más claro Finanzas */
+}
+
+/* Verde finanzas */
+.chart-card {
+    border-top-color: #f59e0b;
+}
+
+/* Ambar resultados */
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.group-name-input {
+    margin-bottom: 0;
+}
+
+.card h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.section {
+    margin-bottom: 0;
+}
+
+.input-group {
+    margin-bottom: 1.25rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: #cbd5e1;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+}
+
+.hint {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+    border: 1px solid var(--primary);
+    padding: 0.875rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.error-toast {
+    margin-top: 1rem;
+    background: #fef2f2;
+    border-left: 4px solid var(--danger);
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* RESULTS PANEL */
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.result-row span:first-child {
+    font-weight: 500;
+}
+
+.result-row span:last-child {
+    font-variant-numeric: tabular-nums;
+}
+
+.result-row.total {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    color: var(--text-main);
+}
+
+.pos {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.neg {
+    color: var(--danger);
+    font-weight: 500;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 1.25rem 0;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.kpi {
+    background: var(--input-bg);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.kpi h4 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.kpi p {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
+}
+
+.insight-box {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: #eff6ff;
+    /* Light blue */
+    border-radius: 6px;
+    border: 1px solid #bfdbfe;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #1e3a8a;
+}
+
+.empty-state {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* NUEVOS ESTILOS PARA PANTALLAS Y ROLES */
+.screen {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+input[readonly],
+input.input-fixed {
+    background-color: #e2e8f0;
+    color: var(--text-muted);
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+}
+
+input[readonly]:focus,
+input.input-fixed:focus {
+    box-shadow: none;
+    border-color: #cbd5e1;
+    background-color: #e2e8f0;
+}
+
+.badge-admin {
+    background-color: var(--primary);
+    color: white;
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
