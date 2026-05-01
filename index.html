@@ -12,17 +12,9 @@
 <body>
     <div class="background-animated"></div>
     <div class="container">
-        <header>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1>Student Business <span class="highlight">Simulator</span></h1>
-                    <p>Simulador de Negocios · Dos Rondas</p>
-                </div>
-                <!-- Student Logout Button (Hidden initially) -->
-                <button type="button" class="btn-primary hidden" id="btn-logout-student"
-                    style="background: var(--text-muted); border-color: var(--text-muted); padding: 0.5rem 1rem;">⬅️
-                    Cambiar Rol</button>
-            </div>
+        <header class="main-header">
+            <h1 class="main-title">Business <span class="highlight">Simulator</span> <span class="badge-pro">PRO</span></h1>
+            <p class="main-subtitle">Simulador de Negocios</p>
         </header>
 
         <!-- PANTALLA DE LOGIN -->
@@ -79,9 +71,39 @@
                                 <hr style="margin: 0;">
                             </div>
                             <div class="input-group">
-                                <label for="admin_mtd">Mercado Total Disponible (MTD)</label>
+                                <label for="admin_cant_grupos">Cantidad de Grupos (N)</label>
+                                <select id="admin_cant_grupos" required style="color: #f1f5f9;">
+                                    <option value="1" style="background:#0f172a; color:#f1f5f9;">1 Grupo</option>
+                                    <option value="2" style="background:#0f172a; color:#f1f5f9;">2 Grupos</option>
+                                    <option value="3" selected style="background:#0f172a; color:#f1f5f9;">3 Grupos</option>
+                                    <option value="4" style="background:#0f172a; color:#f1f5f9;">4 Grupos</option>
+                                    <option value="5" style="background:#0f172a; color:#f1f5f9;">5 Grupos</option>
+                                </select>
+                                <small class="hint">Define cuántos equipos compiten en el mercado.</small>
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <hr style="margin: 0;">
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label style="display:flex; align-items:center; gap:0.75rem; text-transform:none; font-size:0.9rem; color:var(--text-main); cursor:pointer; margin-bottom:0;">
+                                    <span style="flex:1;">🔓 Habilitar Ronda 2 para los estudiantes</span>
+                                    <label class="toggle-switch" style="margin-bottom:0;">
+                                        <input type="checkbox" id="admin_enable_r2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text" id="admin_r2_label" style="font-size:0.85rem;">Deshabilitada</span>
+                                    </label>
+                                </label>
+                                <small class="hint" style="margin-top:0.5rem;">Cuando está <strong style="color:var(--accent);">habilitada</strong>, los estudiantes pueden ver y acceder a la pestaña Ronda 2. Si está <strong style="color:var(--danger);">deshabilitada</strong>, la pestaña aparece bloqueada.</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_mtd">Mercado Total Disponible (MTD) Ronda 1</label>
                                 <input type="number" id="admin_mtd" required value="5000">
-                                <small class="hint">Demanda global.</small>
+                                <small class="hint">Demanda global R1. Techo máximo absoluto.</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_mtd_r2">Mercado Total Disponible (MTD) Ronda 2</label>
+                                <input type="number" id="admin_mtd_r2" required value="7500">
+                                <small class="hint">Demanda global R2.</small>
                             </div>
                             <div class="input-group">
                                 <label for="admin_cost_adj">Var. Costos Producción (%)</label>
@@ -96,16 +118,29 @@
                                 <input type="number" id="admin_tax" step="0.1" required value="30">
                             </div>
                             <div class="input-group">
-                                <label for="admin_prod_cost">Costo Un. Prod. (Base T1) ($)</label>
-                                <input type="number" id="admin_prod_cost" step="0.01" required value="50">
+                                <label for="admin_interest_st">Tasa Interés Corto Plazo (%)</label>
+                                <input type="number" id="admin_interest_st" step="0.1" required value="5">
                             </div>
                             <div class="input-group">
-                                <label for="admin_prod_cost_t2">Costo Un. Prod. (Base T2) ($)</label>
-                                <input type="number" id="admin_prod_cost_t2" step="0.01" required value="60">
+                                <label for="admin_prod_cost_r1_t1">Costo Base T1 (Ronda 1) ($)</label>
+                                <input type="number" id="admin_prod_cost_r1_t1" step="0.01" required value="50">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_prod_cost_r2_t1">Costo Base T1 (Ronda 2) ($)</label>
+                                <input type="number" id="admin_prod_cost_r2_t1" step="0.01" required value="50">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_prod_cost_r2_t2">Costo Base T2 (Ronda 2) ($)</label>
+                                <input type="number" id="admin_prod_cost_r2_t2" step="0.01" required value="60">
                             </div>
                             <div class="input-group">
                                 <label for="admin_tech2_cost">Costo Adquisición Tec. 2 ($)</label>
                                 <input type="number" id="admin_tech2_cost" step="0.01" required value="30000">
+                            </div>
+                            <div class="input-group">
+                                <label for="admin_maintenance_cost">Costo Mantenimiento Inventario ($/unid)</label>
+                                <input type="number" id="admin_maintenance_cost" step="0.01" required value="2.50">
+                                <small class="hint">Costo por unidad no vendida al final del período.</small>
                             </div>
                         </div>
                         <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
@@ -136,11 +171,35 @@
                     <button type="button" class="btn-primary" id="btn-reset-students" style="background: var(--text-muted); border-color: var(--text-muted); width: 100%; margin-top: 1rem;">🗑️ Borrar todos los equipos (Peligro)</button>
                 </div>
 
-                <!-- GRÁFICO COMPARATIVO - UNIDADES -->
-                <div class="card chart-card">
-                    <h2>📊 Unidades Vendidas por Grupo</h2>
-                    <div class="chart-container">
-                        <canvas id="rankingChartUnits"></canvas>
+                <!-- CUADRO COMPARATIVO - VENTAS REALES VS ESTIMADAS -->
+                <div class="card full-width">
+                    <h2>📊 Ventas Reales Vs Estimadas por Equipo</h2>
+                    <div class="market-analysis-panel" style="margin-top: 0; overflow-x: auto;">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Equipo</th>
+                                    <th colspan="3" style="text-align: center; border-bottom: 1px solid var(--border);">Ronda 1</th>
+                                    <th colspan="4" style="text-align: center; border-bottom: 1px solid var(--border);">Ronda 2</th>
+                                    <th colspan="3" style="text-align: center; border-bottom: 1px solid var(--border);">Acumulado (R1 + R2)</th>
+                                </tr>
+                                <tr>
+                                    <th>Estimadas</th>
+                                    <th>Reales</th>
+                                    <th>Desvío</th>
+                                    <th>Estimadas</th>
+                                    <th>Reales Tec 1</th>
+                                    <th>Reales Tec 2</th>
+                                    <th>Desvío</th>
+                                    <th>Estimadas</th>
+                                    <th>Reales</th>
+                                    <th>Desvío Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-ventas-table-body">
+                                <tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:1rem;">Esperando datos...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -151,62 +210,72 @@
                         <canvas id="rankingChartProfit"></canvas>
                     </div>
                 </div>
+
+                <!-- GRÁFICO COMPARATIVO - ROI -->
+                <div class="card chart-card">
+                    <h2>📈 ROI por Grupo (%)</h2>
+                    <div class="chart-container">
+                        <canvas id="rankingChartROI"></canvas>
+                    </div>
+                </div>
+                </div>
+                
+                <!-- TABLA IVC -->
+                <div class="card full-width">
+                    <h2>👑 Ranking de Valor para el Accionista (IVC)</h2>
+                    <div class="market-analysis-panel" style="margin-top: 0;">
+                        <table class="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Índice de Valor Creado (IVC)</th>
+                                    <th>Nota del Directorio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-ivc-table-body">
+                                <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:1rem;">Por calcular...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- PANTALLA DE ESTUDIANTE -->
         <div id="student-screen" class="screen">
             <!-- ROUND TABS -->
-            <div class="round-tabs">
-                <button class="round-tab active" id="tab-r1" onclick="switchRound(1)">
-                    🏁 Ronda 1
-                </button>
-                <button class="round-tab" id="tab-r2" onclick="switchRound(2)">
-                    🚀 Ronda 2
-                </button>
+            <div class="round-tabs-wrapper">
+                <div class="round-tabs">
+                    <button class="round-tab active" id="tab-r1" onclick="switchRound(1)">
+                        <span class="tab-number">01</span>
+                        <span class="tab-label">Ronda 1</span>
+                        <span class="tab-sublabel">Tecnología 1 · Mercado Base</span>
+                    </button>
+                    <button class="round-tab" id="tab-r2" onclick="switchRound(2)">
+                        <span class="tab-number">02</span>
+                        <span class="tab-label">Ronda 2</span>
+                        <span class="tab-sublabel">Expansión · Tecnología 2</span>
+                    </button>
+                </div>
             </div>
 
-            <form id="sim-form">
+            <form id="sim-form" novalidate>
                 <div class="dashboard">
                     <!-- ÁREA DE GRUPO -->
-                    <div class="card full-width" style="padding: 1.5rem 2.5rem;">
-                        <div
-                            style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-                            <div class="input-group" style="margin-bottom: 0; flex:1; min-width:200px;">
-                                <label for="group_name" style="font-size: 1.1rem; font-weight: 600;">Nombre del
-                                    Grupo</label>
-                                <input type="text" id="group_name" readonly
-                                    style="font-size: 1.1rem; padding: 1rem; background-color: #e2e8f0; font-weight: bold;">
-                            </div>
-                        </div>
+                    <div class="card full-width group-area" style="max-width: 600px; margin: 0 auto 1.5rem auto; padding: 1.5rem; border-top-color: var(--primary); text-align: center; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.05));">
+                        <h2 id="group_name_display" style="font-size: 1.6rem; margin: 0; color: var(--primary); font-weight: 800; border: none; justify-content: center; display: flex; align-items: center; gap: 0.5rem; text-transform: none;">
+                            <span>🏆</span> <span id="group_name_text">Tu Grupo</span>
+                        </h2>
+                        <input type="hidden" id="group_name">
                     </div>
 
-                    <!-- ÁREA DE ESTRATEGIA Y MERCADO -->
-                    <div class="card strategy-card">
-                        <h2>Estrategia y Entorno <span class="badge-admin">Admin</span></h2>
-                        <div class="section strategy">
-                            <div class="input-group">
-                                <label for="mtd">Mercado Total Disponible - MTD (Unids)</label>
-                                <input type="number" id="mtd" readonly class="input-fixed" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label for="cost_adj">Variación Costos Producción (%)</label>
-                                <input type="number" id="cost_adj" readonly class="input-fixed" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label for="marketing_adj">Efectividad Publicitaria (%)</label>
-                                <input type="number" id="marketing_adj" readonly class="input-fixed" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label for="tax">Tax (%)</label>
-                                <input type="number" id="tax" readonly class="input-fixed" value="0">
-                            </div>
-                        </div>
-                    </div>
+                    <div id="winner-trophy-container" class="full-width hidden" style="text-align:center; max-width: 600px; margin: 0 auto 1.5rem auto;"></div>
+                    
+                    <div class="dashboard-row full-width" style="display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 1rem; width: 100%; align-items: flex-start;">
 
                     <!-- ÁREA DE OPERACIONES RONDA 1 -->
-                    <div class="card operations-card" id="ops-r1">
-                        <h2>Operaciones <span class="round-badge">Ronda 1</span></h2>
+                    <div class="card operations-card compact-card" id="ops-r1">
+                        <h2 style="margin-bottom: 1rem; font-size: 0.8rem;">Operaciones <span class="round-badge">Ronda 1</span></h2>
                         <div class="section operations">
                             <div class="input-group">
                                 <label for="prod_cost">Costo Un. Producción ($) </label>
@@ -225,8 +294,8 @@
                             </div>
                             <div class="input-group">
                                 <label for="sub_units">Subcontratación (Unidades)</label>
-                                <input type="number" id="sub_units" min="0" max="300" required placeholder="Máx 300">
-                                <small class="hint">⚠️ Máx. 300 unids. Recargo del 50% sobre costo de
+                                <input type="number" id="sub_units" min="0" max="500" required placeholder="Máx 500">
+                                <small class="hint">⚠️ Máx. 500 unids. Recargo del 50% sobre costo de
                                     producción.</small>
                             </div>
 
@@ -251,8 +320,8 @@
                     </div>
 
                     <!-- ÁREA DE OPERACIONES RONDA 2 -->
-                    <div class="card operations-card hidden" id="ops-r2">
-                        <h2>Operaciones <span class="round-badge r2">Ronda 2</span></h2>
+                    <div class="card operations-card compact-card hidden" id="ops-r2">
+                        <h2 style="margin-bottom: 1rem; font-size: 0.8rem;">Operaciones <span class="round-badge r2">Ronda 2</span></h2>
 
                         <!-- Para grupos SIN Tecnología 2 -->
                         <div id="ops-r2-no-tech2">
@@ -263,14 +332,13 @@
                                     <input type="number" id="r2_prod_cost_t1" min="1" step="0.01" required value="50">
                                 </div>
                                 <div class="input-group">
-                                    <label>Producción en Planta Tec. 1 (Unidades)</label>
-                                    <input type="number" value="3000" disabled class="input-fixed">
-                                    <small class="hint">Capacidad fija: 3,000 unid.</small>
+                                    <label for="r2_plant_units_t1_no_tech">Producción en Planta Tec. 1 (Unidades)</label>
+                                    <input type="number" id="r2_plant_units_t1_no_tech" min="0" required placeholder="Ej: 3000">
                                 </div>
                                 <div class="input-group">
-                                    <label>Subcontratación Tec. 1 (Unidades)</label>
-                                    <input type="number" value="500" disabled class="input-fixed">
-                                    <small class="hint">Fijo: 500 unid. Costo = +5% unit.</small>
+                                    <label for="r2_sub_units_t1_no_tech">Subcontratación Tec. 1 (Unidades)</label>
+                                    <input type="number" id="r2_sub_units_t1_no_tech" min="0" max="500" required placeholder="Máx 500">
+                                    <small class="hint">Permitido hasta 500 unid. Costo = +50% unit.</small>
                                 </div>
                             </div>
 
@@ -294,14 +362,14 @@
                                         value="50">
                                 </div>
                                 <div class="input-group">
-                                    <label>Producción en Planta Tec. 1 (Unidades)</label>
-                                    <input type="number" value="1500" disabled class="input-fixed">
-                                    <small class="hint">Capacidad fija: 1,500 unid.</small>
+                                    <label for="r2_plant_units_t1">Producción en Planta Tec. 1 (Unidades)</label>
+                                    <input type="number" id="r2_plant_units_t1" min="0" max="2000" required placeholder="Ej: 1500">
+                                    <small class="hint">Capacidad máxima: 2,000 unid.</small>
                                 </div>
                                 <div class="input-group">
-                                    <label>Subcontratación Tec. 1 (Unidades)</label>
-                                    <input type="number" value="500" disabled class="input-fixed">
-                                    <small class="hint">Fijo: 500 unid. Costo = +15% unit.</small>
+                                    <label for="r2_sub_units_t1">Subcontratación Tec. 1 (Unidades)</label>
+                                    <input type="number" id="r2_sub_units_t1" min="0" max="500" required placeholder="Máx 500">
+                                    <small class="hint">Permitido hasta 500 unid. Costo = +50% unit.</small>
                                 </div>
                             </div>
 
@@ -313,43 +381,82 @@
                                     <input type="number" id="r2_prod_cost_t2" min="1" step="0.01" required value="60">
                                 </div>
                                 <div class="input-group">
-                                    <label>Producción en Planta Tec. 2 (Unidades)</label>
-                                    <input type="number" value="1000" disabled class="input-fixed">
-                                    <small class="hint">Capacidad fija: 1,000 unid.</small>
+                                    <label for="r2_plant_units_t2">Producción en Planta Tec. 2 (Unidades)</label>
+                                    <input type="number" id="r2_plant_units_t2" min="0" max="2000" required placeholder="Ej: 1000">
+                                    <small class="hint">Capacidad máxima: 2,000 unid.</small>
                                 </div>
                                 <div class="input-group">
-                                    <label>Subcontratación Tec. 2 (Unidades)</label>
-                                    <input type="number" value="300" disabled class="input-fixed">
-                                    <small class="hint">Fijo: 300 unid. Costo = +20% unit.</small>
+                                    <label for="r2_sub_units_t2">Subcontratación Tec. 2 (Unidades)</label>
+                                    <input type="number" id="r2_sub_units_t2" min="0" max="500" required placeholder="Máx 500">
+                                    <small class="hint">Permitido hasta 500 unid. Costo = +50% unit.</small>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- ÁREA DE MARKETING -->
-                    <div class="card marketing-card">
-                        <h2>Marketing</h2>
-                        <div class="section marketing">
-                            <div class="input-group">
-                                <label for="price">Precio de Venta ($)</label>
-                                <input type="number" id="price" min="1" step="0.01" required placeholder="Ej: 150.00">
+                    <div class="card marketing-card compact-card">
+                        <h2 style="margin-bottom: 1rem; font-size: 0.8rem;">Marketing</h2>
+                        
+                        <div id="marketing-r1">
+                            <div class="section marketing">
+                                <div class="input-group">
+                                    <label for="price">Precio de Venta ($)</label>
+                                    <input type="number" id="price" min="1" step="0.01" required placeholder="Ej: 150.00">
+                                </div>
+                                <div class="input-group">
+                                    <label for="estimated_sales">Ventas Estimadas (Unidades)</label>
+                                    <input type="number" id="estimated_sales" min="0" required placeholder="Ej: 800">
+                                    <small class="hint">Usado para Error de Estimación.</small>
+                                </div>
+                                <div class="input-group">
+                                    <label for="marketing_spend">Inversión en A&P ($)</label>
+                                    <input type="number" id="marketing_spend" min="0" step="0.01" required placeholder="Ej: 5000.00">
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label for="estimated_sales">Ventas Estimadas (Unidades)</label>
-                                <input type="number" id="estimated_sales" min="0" required placeholder="Ej: 800">
-                                <small class="hint">Usado para Error de Estimación.</small>
+                        </div>
+
+                        <div id="marketing-r2" class="hidden">
+                            <p class="ops-section-title">Tecnología 1</p>
+                            <div class="section marketing">
+                                <div class="input-group">
+                                    <label for="r2_price_t1">Precio de Venta Tec. 1 ($)</label>
+                                    <input type="number" id="r2_price_t1" min="1" step="0.01" required placeholder="Ej: 150.00" value="150.00">
+                                </div>
+                                <div class="input-group">
+                                    <label for="r2_estimated_sales_t1">Ventas Estimadas Tec. 1 (Unidades)</label>
+                                    <input type="number" id="r2_estimated_sales_t1" min="0" required placeholder="Ej: 800" value="800">
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label for="marketing_spend">Inversión en A&P ($)</label>
-                                <input type="number" id="marketing_spend" min="0" step="0.01" required
-                                    placeholder="Ej: 5000.00">
+
+                            <div id="marketing-r2-tech2" class="hidden">
+                                <p class="ops-section-title tech2-title">Tecnología 2</p>
+                                <div class="section marketing">
+                                    <div class="input-group">
+                                        <label for="r2_price_t2">Precio de Venta Tec. 2 ($)</label>
+                                        <input type="number" id="r2_price_t2" min="1" step="0.01" required placeholder="Ej: 200.00" value="200.00">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="r2_estimated_sales_t2">Ventas Estimadas Tec. 2 (Unidades)</label>
+                                        <input type="number" id="r2_estimated_sales_t2" min="0" required placeholder="Ej: 500" value="500">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr style="margin-top: 0.5rem; margin-bottom: 1.5rem;">
+                            <div class="section marketing">
+                                <div class="input-group">
+                                    <label for="r2_marketing_spend">Inversión Total en A&P ($)</label>
+                                    <input type="number" id="r2_marketing_spend" min="0" step="0.01" required placeholder="Ej: 5000.00" value="5000">
+                                    <small class="hint">Publicidad global para la marca del grupo.</small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- ÁREA DE PERSONAL -->
-                    <div class="card hr-card">
-                        <h2>Recursos Humanos</h2>
+                    <div class="card hr-card compact-card">
+                        <h2 style="margin-bottom: 1rem; font-size: 0.8rem;">Recursos Humanos</h2>
                         <div class="section hr">
                             <div class="input-group">
                                 <label for="employees">Cantidad de Empleados</label>
@@ -370,153 +477,246 @@
                     </div>
 
                     <!-- ÁREA DE FINANCIAMIENTO -->
-                    <div class="card finance-input-card">
-                        <h2>Financiamiento</h2>
+                    <div class="card finance-input-card compact-card">
+                        <h2 style="margin-bottom: 1rem; font-size: 0.8rem;">Financiamiento</h2>
                         <div class="section finance-in">
                             <div class="input-group">
-                                <label for="short_term_debt">Gastos Financieros CP ($)</label>
+                                <label for="short_term_debt">Deuda a Corto Plazo ($)</label>
                                 <input type="number" id="short_term_debt" min="0" step="0.01" required
-                                    placeholder="Intereses CP" value="0">
+                                    placeholder="Capital CP (Opcional)" value="0">
                                 <small class="hint" id="short-term-tech2-hint"
                                     style="display:none; color:var(--primary);">
-                                    💡 Se incrementará auto por Tecnología 2.
+                                    💡 Se tomará deuda ST auto si la Utilidad no alcanza para adquirir la Tecnología 2.
                                 </small>
                             </div>
-                            <div class="input-group">
-                                <label for="long_term_debt">Deuda a Largo Plazo ($)</label>
-                                <input type="number" id="long_term_debt" min="0" step="0.01" required
-                                    placeholder="Capital LP" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label for="maintenance_cost">Costo Mantenimiento ($/unid)</label>
-                                <input type="number" id="maintenance_cost" min="0" step="0.01" required
-                                    placeholder="Ej: 2.50">
-                            </div>
+                            <!-- Long term debt was eliminated -->
+                            <!-- maintenance_cost is now set by Admin -->
                         </div>
                     </div>
+                    </div> <!-- CIERRA DASHBOARD ROW -->
 
                     <!-- BOTÓN PROCESAR -->
                     <div class="full-width"
-                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 1rem;">
-                        <button type="submit" class="btn-primary"
-                            style="max-width: 400px; padding: 1.2rem; font-size: 1.2rem; width: 100%;">💾 Guardar y
-                            Procesar Decisión</button>
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; width: 100%; max-width: 600px; justify-content: center;">
+                            <button type="button" id="btn-preview" class="btn-primary"
+                                style="flex: 1; padding: 1.2rem; font-size: 1.1rem; background: var(--text-muted); border-color: var(--text-muted);">👁️ Previsualizar Resultados</button>
+                            <button type="submit" class="btn-primary"
+                                style="flex: 1; padding: 1.2rem; font-size: 1.1rem;">💾 Guardar y
+                                Procesar</button>
+                        </div>
                         <div id="error-message" class="error-toast hidden"
                             style="max-width: 600px; width: 100%; text-align: left;">
                         </div>
+                        <div id="save-success-msg" class="hidden"
+                            style="max-width:600px; width:100%; margin-top:0.75rem; padding:1rem 1.5rem; background:rgba(16,185,129,0.15); border:1px solid var(--accent); border-radius:8px; color:var(--accent); font-weight:600; text-align:center; font-size:1rem;">
+                        </div>
                     </div>
+
+                    <!-- ÁREA DE ESTRATEGIA Y MERCADO (fuera del panel clonado, solo visible al guardar) -->
+                    <div class="hidden full-width" id="strategy-env-card" style="margin-top: 1rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(79,70,229,0.04)); border: 1px solid rgba(99,102,241,0.2); border-radius: 14px; border-left: 3px solid var(--primary);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted);">Parámetros de Entorno</span>
+                            <span class="badge-admin">Admin</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+                            <div class="input-group" id="mtd_group_r1" style="margin-bottom:0;">
+                                <label for="mtd">MTD Ronda 1</label>
+                                <input type="number" id="mtd" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group hidden" id="mtd_group_r2" style="margin-bottom:0;">
+                                <label for="mtd_r2">MTD Ronda 2</label>
+                                <input type="number" id="mtd_r2" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label for="cost_adj">Var. Costos Prod (%)</label>
+                                <input type="number" id="cost_adj" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label for="marketing_adj">Efectividad Pub (%)</label>
+                                <input type="number" id="marketing_adj" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label for="tax">Tax (%)</label>
+                                <input type="number" id="tax" readonly class="input-fixed" value="0">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label for="maintenance_cost_display">Mant. Inventario ($)</label>
+                                <input type="number" id="maintenance_cost_display" readonly class="input-fixed" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Base para Resultados (Clonado por JS dentro de la misma GRID) -->
+                    <div class="card results-card full-width hidden" id="results-panel">
+                        <h2 style="display:flex; justify-content:space-between; align-items:center;">
+                            Resultados <span id="results-round-badge" class="round-badge">Ronda 1</span>
+                        </h2>
+                        
+                        <!-- ESTADO VACÍO -->
+                        <div class="empty-state" id="empty-state">
+                            <h3 style="text-align: center; margin-top: 2rem;">Aún no hay resultados</h3>
+                            <p style="text-align: center; color: var(--text-muted);">Ingresa tus decisiones y presiona "Guardar y Procesar" para ver tu desempeño.</p>
+                        </div>
+
+                        <!-- ESTADO DE ESPERA -->
+                        <div class="empty-state hidden" id="waiting-state">
+                            <h3 style="text-align: center; margin-top: 2rem; color: #fbbf24;">⏳ Esperando...</h3>
+                            <p style="text-align: center; color: var(--text-muted); max-width: 500px; margin: 0 auto;">Tus decisiones han sido guardadas. Los resultados se calcularán automáticamente al finalizar.</p>
+                            <div style="text-align: center;">
+                                <button type="button" class="btn-primary" onclick="location.reload()" style="margin-top: 1rem; width: auto; display: inline-block; background: var(--text-muted); border-color: var(--text-muted);">🔄 Refrescar</button>
+                            </div>
+                        </div>
+
+                        <div class="results-content hidden" id="results-data">
+                            <!-- PREVIEW BANNER -->
+                            <div id="preview-mode-banner" class="hidden"
+                                style="margin-bottom:1rem; padding:0.75rem 1.25rem; background:rgba(251,191,36,0.15); border:1px solid #fbbf24; border-radius:8px; color:#fbbf24; font-weight:600; font-size:0.9rem; text-align:center;">
+                                👁️ PREVISUALIZACIÓN — Basado en estimaciones.
+                            </div>
+                            <div class="pl-vertical-grid" style="margin-bottom: 2rem;">
+                                <table class="market-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: left; padding: 0.75rem;">Concepto</th>
+                                            <th style="text-align: right; padding: 0.75rem;">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Ingresos -->
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem;"><strong>Ingresos por Ventas</strong></td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-ventas" class="pos"></td>
+                                        </tr>
+                                        <!-- Costos -->
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Costo Prod. Propia</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-costo-propio" class="neg"></td>
+                                        </tr>
+                                        <tr id="row-costo-sub" style="display:none;">
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Costo Subcontratación</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-costo-sub" class="neg"></td>
+                                        </tr>
+                                        <!-- Utilidad Bruta -->
+                                        <tr style="background: rgba(99, 102, 241, 0.05); border-top: 2px solid var(--border-light);">
+                                            <td style="text-align: left; padding: 0.75rem;"><strong>Utilidad Bruta</strong></td>
+                                            <td style="text-align: right; padding: 0.75rem; font-size: 1.1rem; font-weight: 700;" id="res-gross"></td>
+                                        </tr>
+                                        <!-- Egresos -->
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Gastos A&P</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-ap" class="neg"></td>
+                                        </tr>
+                                        <tr id="row-maintenance" style="display:none;">
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Mantenimiento de Inventario</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-maintenance" class="neg"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Capacitación</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-training" class="neg"></td>
+                                        </tr>
+                                        <tr id="row-tech2-acq" style="display:none;">
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Adquisición Tecnología 2</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-tech2-acq" class="neg"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Intereses Corto Plazo</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-interest-st" class="neg"></td>
+                                        </tr>
+                                        <!-- EBITDA -->
+                                        <tr style="background: rgba(99, 102, 241, 0.05); border-top: 2px solid var(--border-light);">
+                                            <td style="text-align: left; padding: 0.75rem;"><strong>EBITDA</strong></td>
+                                            <td style="text-align: right; padding: 0.75rem; font-size: 1.1rem; font-weight: 700;" id="res-ebitda"></td>
+                                        </tr>
+                                        <!-- Amortización -->
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Amortización</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-amortization" class="neg"></td>
+                                        </tr>
+                                        <!-- EBIT/EBT -->
+                                        <tr style="background: rgba(99, 102, 241, 0.05); border-top: 2px solid var(--border-light);">
+                                            <td style="text-align: left; padding: 0.75rem;"><strong>EBIT / EBT</strong></td>
+                                            <td style="text-align: right; padding: 0.75rem; font-weight: 700;" id="res-ebit"></td>
+                                        </tr>
+                                        <!-- Tax -->
+                                        <tr>
+                                            <td style="text-align: left; padding: 0.75rem; color: var(--text-muted);">Impuestos (Tax)</td>
+                                            <td style="text-align: right; padding: 0.75rem;" id="res-tax" class="neg"></td>
+                                        </tr>
+                                        <!-- Utilidad Neta -->
+                                        <tr style="background: rgba(16, 185, 129, 0.1); border-top: 2px solid var(--primary);">
+                                            <td style="text-align: left; padding: 1rem;"><strong>Utilidad Neta</strong></td>
+                                            <td style="text-align: right; padding: 1rem; font-size: 1.2rem; font-weight: 700;" id="res-utilidad"></td>
+                                        </tr>
+                                        <!-- ROI -->
+                                        <tr style="border-top: 1px solid var(--border-light);">
+                                            <td style="text-align: left; padding: 0.75rem;"><strong>ROI (sobre Cap. <span id="res-cap-base">500k</span>)</strong></td>
+                                            <td style="text-align: right; padding: 0.75rem; font-size: 1.1rem; font-weight: 700;" id="res-roi"></td>
+                                        </tr>
+                                        <!-- Hidden element to maintain compatibility -->
+                                        <tr style="display:none;"><td id="res-ebt"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="kpi-grid">
+                                <div class="kpi">
+                                    <h4>Act. DR</h4>
+                                    <p id="kpi-demand">0 unid.</p>
+                                </div>
+                                <div class="kpi">
+                                    <h4>Ventas</h4>
+                                    <p id="kpi-sold">0 unid.</p>
+                                </div>
+                                <div class="kpi">
+                                    <h4>Stock</h4>
+                                    <p id="kpi-stock">0 unid.</p>
+                                </div>
+                                <div class="kpi">
+                                    <h4>Stock Desvío</h4>
+                                    <p id="kpi-estimation-error">0 un.</p>
+                                </div>
+                                <div class="kpi" style="border-color: var(--accent); background: rgba(16, 185, 129, 0.05);">
+                                    <h4 style="color: var(--accent);">🏆 IVC Acum.</h4>
+                                    <p id="kpi-ivc" style="color: var(--accent);">0.00</p>
+                                </div>
+                            </div>
+                            <!-- TABLA ANÁLISIS DE MERCADO -->
+                            <div class="market-analysis-panel" id="market-analysis-panel" style="overflow-x: auto;">
+                                <h3>📊 Análisis Comparativo de Mercado</h3>
+                                <table class="market-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Valor</th>
+                                            <th>Detalle</th>
+                                            <th>Resultado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="market-analysis-body">
+                                        <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:1rem;">Procesa para ver el análisis.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div id="insight-box" class="insight-box" style="margin-top: 1.5rem;"></div>
+
+                            <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="chart-container" style="height: 250px;">
+                                    <canvas id="studentChartBreakdown"></canvas>
+                                </div>
+                                <div class="chart-container" style="height: 250px;">
+                                    <canvas id="studentChartProfitability"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="winner-trophy-container" class="full-width" style="text-align:center; margin-top: 1rem;"></div>
                 </div>
             </form>
-
-            <div class="dashboard" style="margin-top: 2rem;">
-                <!-- ÁREA DE FINANZAS DEL ESTUDIANTE -->
-                <div class="card results-card" id="results-panel">
-                    <h2>Resultados Grupo <span id="results-round-badge" class="round-badge">Ronda 1</span></h2>
-                    <div class="results-content hidden" id="results-data">
-                        <!-- INGRESOS -->
-                        <div class="result-row">
-                            <span>Ventas (+)</span>
-                            <span id="res-ventas" class="pos"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Costo de Producción (-)</span>
-                            <span id="res-costo-propio" class="neg"></span>
-                        </div>
-                        <div class="result-row" id="row-costo-sub">
-                            <span>Costo de Subcontratación (-)</span>
-                            <span id="res-costo-sub" class="neg"></span>
-                        </div>
-                        <div class="result-row total">
-                            <span>Utilidad Bruta (=)</span>
-                            <span id="res-gross"></span>
-                        </div>
-                        <div class="result-row" id="row-maintenance">
-                            <span>Costo Mant. Inventario (-)</span>
-                            <span id="res-maintenance" class="neg"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Gastos Financieros CP (-)</span>
-                            <span id="res-finance-cp" class="neg"></span>
-                        </div>
-                        <div class="result-row" id="row-tech2-finance" style="display:none;">
-                            <span>⟶ Extra Financiamiento Tec. 2 (-)</span>
-                            <span id="res-tech2-finance" class="neg"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Gastos A&P (-)</span>
-                            <span id="res-ap" class="neg"></span>
-                        </div>
-                        <div class="result-row total">
-                            <span>EBITDA (=)</span>
-                            <span id="res-ebitda"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Amortización (-)</span>
-                            <span id="res-amortization" class="neg"></span>
-                        </div>
-                        <div class="result-row total">
-                            <span>EBIT (=)</span>
-                            <span id="res-ebit"></span>
-                        </div>
-                        <div class="result-row" id="row-long-term">
-                            <span>Deuda a Largo Plazo (-)</span>
-                            <span id="res-long-term" class="neg"></span>
-                        </div>
-                        <div class="result-row total">
-                            <span>EBT (=)</span>
-                            <span id="res-ebt"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Tax (-)</span>
-                            <span id="res-tax" class="neg"></span>
-                        </div>
-                        <hr>
-                        <div class="result-row total" style="color: var(--primary);">
-                            <span>Utilidad Neta (=)</span>
-                            <span id="res-utilidad"></span>
-                        </div>
-                        <div id="row-tech2-summary" class="tech2-summary-box" style="display:none;">
-                            <span id="res-tech2-summary-text"></span>
-                        </div>
-                        <div class="result-row">
-                            <span>Inversión Inicial Capital</span>
-                            <span>$500,000.00</span>
-                        </div>
-                        <div class="result-row total" style="color: var(--primary);">
-                            <span>Retorno (ROI)</span>
-                            <span id="res-roi"></span>
-                        </div>
-
-                        <div class="kpi-grid">
-                            <div class="kpi">
-                                <h4>Act. DR</h4>
-                                <p id="kpi-demand">0 unid.</p>
-                            </div>
-                            <div class="kpi">
-                                <h4>Ventas</h4>
-                                <p id="kpi-sold">0 unid.</p>
-                            </div>
-                            <div class="kpi">
-                                <h4>Stock</h4>
-                                <p id="kpi-stock">0 unid.</p>
-                            </div>
-                            <div class="kpi">
-                                <h4>Stk Err</h4>
-                                <p id="kpi-estimation-error">0 un.</p>
-                            </div>
-                        </div>
-                        <div class="insight-box" id="insight-box">
-                            <!-- Feedback educativo aquí -->
-                        </div>
-                    </div>
-                    <div class="empty-state" id="empty-state">
-                        <p>Tus resultados financieros aparecerán aquí cuando el Admin procese los datos de todos.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="app.js"></script>
 </body>
 
